@@ -5,6 +5,7 @@ import (
     "log"
     "net/http"
     "ribbit/internal/templates"
+    "strings"
 )
 
 // PageData represents the data we'll pass to our template
@@ -13,6 +14,8 @@ type PageData struct {
     ErrorMessage  string
     TrendingPosts []templates.Post
     AllPosts      []templates.Post
+    SearchResults []templates.Post
+    Query         string
 }
 
 func main() {
@@ -26,6 +29,7 @@ func main() {
     http.HandleFunc("/logout", handleLogout)
     http.HandleFunc("/trending", handleTrending)
     http.HandleFunc("/profile", handleProfile)
+    http.HandleFunc("/search", handleSearch)
 
     // Start server
     log.Println("Server starting on http://localhost:8080")
@@ -196,6 +200,52 @@ func handleProfile(w http.ResponseWriter, r *http.Request) {
             return a + b
         },
     }).ParseFiles("templates/profile.html")
+    if err != nil {
+        http.Error(w, err.Error(), http.StatusInternalServerError)
+        return
+    }
+
+    err = tmpl.Execute(w, data)
+    if err != nil {
+        http.Error(w, err.Error(), http.StatusInternalServerError)
+    }
+}
+
+func handleSearch(w http.ResponseWriter, r *http.Request) {
+    query := strings.ToLower(r.URL.Query().Get("q"))
+    
+    // Get user template if logged in
+    var userTemplate *templates.UserTemplate
+    if cookie, err := r.Cookie("user"); err == nil {
+        userTemplate = templates.GetUserTemplate(cookie.Value)
+    }
+
+    // If no query, redirect to home
+    if query == "" {
+        http.Redirect(w, r, "/", http.StatusSeeOther)
+        return
+    }
+
+    // Search through all posts
+    var results []templates.Post
+    allPosts := templates.GetAllPosts()
+    
+    for _, post := range allPosts {
+        if strings.Contains(strings.ToLower(post.Title), query) ||
+           strings.Contains(strings.ToLower(post.Description), query) {
+            results = append(results, post)
+        }
+    }
+
+    // Prepare data for the template
+    data := PageData{
+        User:          userTemplate,
+        SearchResults: results,
+        Query:         r.URL.Query().Get("q"),
+    }
+
+    // Parse and execute template
+    tmpl, err := template.ParseFiles("templates/search.html")
     if err != nil {
         http.Error(w, err.Error(), http.StatusInternalServerError)
         return

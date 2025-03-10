@@ -1,7 +1,6 @@
 package templates
 
 import (
-    "math"
     "math/rand"
     "sort"
 )
@@ -135,7 +134,11 @@ var (
         Author:      "Ribbit Admin",
     }
 
-
+    musicPond = Pond{Name: "MusicLounge", Description: "For music lovers and creators", Members: "12.3K"}
+    gamingPond = Pond{Name: "GamerHaven", Description: "Gaming discussions and news", Members: "18.7K"}
+    filmPond = Pond{Name: "CinemaSpot", Description: "Movie reviews and discussions", Members: "14.2K"}
+    petsPond = Pond{Name: "PetPals", Description: "All about our furry friends", Members: "10.1K"}
+    fitnessPond = Pond{Name: "FitnessZone", Description: "Health and workout tips", Members: "13.4K"}
 )
 
 type UserTemplate struct {
@@ -210,6 +213,16 @@ func getRandomPostsForUser(userPonds []Pond, excludeAuthor string) []Post {
             pondPosts = getRandomPostsFromPond(bookPosts, 3, excludeAuthor)
         case "CodingPond":
             pondPosts = getRandomPostsFromPond(codingPosts, 3, excludeAuthor)
+        case "MusicLounge":
+            pondPosts = getRandomPostsFromPond(musicPosts, 3, excludeAuthor)
+        case "GamerHaven":
+            pondPosts = getRandomPostsFromPond(gamingPosts, 3, excludeAuthor)
+        case "CinemaSpot":
+            pondPosts = getRandomPostsFromPond(filmPosts, 3, excludeAuthor)
+        case "PetPals":
+            pondPosts = getRandomPostsFromPond(petsPosts, 3, excludeAuthor)
+        case "FitnessZone":
+            pondPosts = getRandomPostsFromPond(fitnessPosts, 3, excludeAuthor)
         }
         allPosts = append(allPosts, pondPosts...)
     }
@@ -294,6 +307,11 @@ func getAdminTemplate() *UserTemplate {
         {Name: "ScienceLab", Description: "Scientific discoveries and discussions", Members: "11.2K"},
         {Name: "BookClub", Description: "For literature lovers", Members: "7.3K"},
         {Name: "FoodiesUnite", Description: "Cooking and recipes", Members: "13.4K"},
+        {Name: "MusicLounge", Description: "For music lovers and creators", Members: "12.3K"},
+        {Name: "GamerHaven", Description: "Gaming discussions and news", Members: "18.7K"},
+        {Name: "CinemaSpot", Description: "Movie reviews and discussions", Members: "14.2K"},
+        {Name: "PetPals", Description: "All about our furry friends", Members: "10.1K"},
+        {Name: "FitnessZone", Description: "Health and workout tips", Members: "13.4K"},
     }
 
     return &UserTemplate{
@@ -308,8 +326,9 @@ func getAdminTemplate() *UserTemplate {
 func getTechUserTemplate() *UserTemplate {
     userPonds := []Pond{
         {Name: "TechTalk", Description: "All things technology", Members: "15K"},
-        {Name: "CodingPond", Description: "Programming discussions", Members: "12K"},
-        {Name: "ScienceLab", Description: "Scientific discoveries and discussions", Members: "11.2K"},
+        {Name: "CodingPond", Description: "Programming discussions", Members: "12.8K"},
+        {Name: "ScienceLab", Description: "Scientific discoveries", Members: "11.2K"},
+        {Name: "GamerHaven", Description: "Gaming discussions and news", Members: "18.7K"},
     }
 
     return &UserTemplate{
@@ -340,6 +359,7 @@ func getArtistTemplate() *UserTemplate {
     userPonds := []Pond{
         {Name: "ArtistsCorner", Description: "Share your creations", Members: "9.8K"},
         {Name: "TechTalk", Description: "All things technology", Members: "15K"},
+        {Name: "CinemaSpot", Description: "Movie reviews and discussions", Members: "14.2K"},
     }
 
     return &UserTemplate{
@@ -397,56 +417,24 @@ func getScientistTemplate() *UserTemplate {
     }
 }
 
-// GetTrendingPosts returns the top post from each pond, sorted by engagement
+// GetTrendingPosts returns the top 8 posts by engagement (likes + comments)
 func GetTrendingPosts() []Post {
-    pondBestPosts := make(map[string]Post)
-    
-    // Helper function to calculate engagement score
-    getEngagementScore := func(post Post) float64 {
-        // Calculate ratio of comments to likes
-        // Add 1 to prevent division by zero and to smooth out the ratio
-        commentRatio := float64(post.Comments+1) / float64(post.Likes+1)
-        
-        // Weight the score to favor posts with more total engagement
-        totalEngagement := float64(post.Comments + post.Likes)
-        
-        // Combine ratio and total engagement for final score
-        // This formula gives higher weight to posts with good comment/like ratio
-        // while still considering overall engagement
-        return commentRatio * math.Log(totalEngagement+1)
-    }
-    
-    // Process all post collections
-    processPostList := func(posts []Post) {
-        for _, post := range posts {
-            currentBest, exists := pondBestPosts[post.PondName]
-            if !exists || getEngagementScore(post) > getEngagementScore(currentBest) {
-                pondBestPosts[post.PondName] = post
-            }
-        }
-    }
-    
-    // Process all post collections
-    processPostList(techPosts)
-    processPostList(gardenPosts)
-    processPostList(artPosts)
-    processPostList(foodPosts)
-    processPostList(sciencePosts)
-    processPostList(bookPosts)
-    processPostList(codingPosts)
-    
-    // Convert map to slice and sort by engagement score
-    var trendingPosts []Post
-    for _, post := range pondBestPosts {
-        trendingPosts = append(trendingPosts, post)
-    }
-    
-    // Sort posts by engagement score
-    sort.Slice(trendingPosts, func(i, j int) bool {
-        return getEngagementScore(trendingPosts[i]) > getEngagementScore(trendingPosts[j])
+    // Create a copy of allPosts to sort
+    posts := make([]Post, len(allPosts))
+    copy(posts, allPosts)
+
+    // Sort posts by total engagement (likes + comments)
+    sort.Slice(posts, func(i, j int) bool {
+        engagementI := posts[i].Likes + posts[i].Comments
+        engagementJ := posts[j].Likes + posts[j].Comments
+        return engagementI > engagementJ
     })
-    
-    return trendingPosts
+
+    // Return only top 8 posts
+    if len(posts) > 8 {
+        return posts[:8]
+    }
+    return posts
 }
 
 // Update the existing artPosts array to include all posts
@@ -517,6 +505,30 @@ var artPosts = []Post{
         PondName:    "ArtistsCorner",
         Author:      "AnimationPro",
     },
+    {
+        Title:       "AI Art: Friend or Foe?",
+        Description: "A balanced discussion on how AI is impacting the art community.",
+        Comments:    789,
+        Likes:       1876,
+        PondName:    "ArtistsCorner",
+        Author:      "ArtPhilosopher",
+    },
+    {
+        Title:       "Urban Sketching Guide",
+        Description: "Tips and techniques for capturing city life in your sketchbook.",
+        Comments:    345,
+        Likes:       987,
+        PondName:    "ArtistsCorner",
+        Author:      "UrbanArtist",
+    },
+    {
+        Title:       "Color Theory Deep Dive",
+        Description: "Understanding color relationships for more impactful artwork.",
+        Comments:    234,
+        Likes:       876,
+        PondName:    "ArtistsCorner",
+        Author:      "ColorMaster",
+    },
 }
 
 // Update the existing bookPosts array
@@ -586,6 +598,30 @@ var bookPosts = []Post{
         PondName:    "BookClub",
         Author:      "ReadingChampion",
     },
+    {
+        Title:       "The Return of Short Stories",
+        Description: "Why short story collections are making a comeback in modern literature.",
+        Comments:    432,
+        Likes:       1123,
+        PondName:    "BookClub",
+        Author:      "StoryTeller",
+    },
+    {
+        Title:       "Fantasy vs Science Fiction",
+        Description: "The blurring lines between fantasy and sci-fi in contemporary literature.",
+        Comments:    345,
+        Likes:       876,
+        PondName:    "BookClub",
+        Author:      "GenreJunkie",
+    },
+    {
+        Title:       "Independent Bookstores Revival",
+        Description: "How local bookshops are thriving in the digital age.",
+        Comments:    234,
+        Likes:       765,
+        PondName:    "BookClub",
+        Author:      "BookKeeper",
+    },
 }
 
 // Update the existing foodPosts array
@@ -647,6 +683,30 @@ var foodPosts = []Post{
         Likes:       378,
         PondName:    "FoodiesUnite",
         Author:      "FoodLenser",
+    },
+    {
+        Title:       "Fermentation Revolution",
+        Description: "Getting started with home fermentation: kombucha, kimchi, and beyond.",
+        Comments:    567,
+        Likes:       1432,
+        PondName:    "FoodiesUnite",
+        Author:      "FermentationFanatic",
+    },
+    {
+        Title:       "Zero-Waste Cooking Guide",
+        Description: "Creative ways to use every part of your ingredients.",
+        Comments:    432,
+        Likes:       1234,
+        PondName:    "FoodiesUnite",
+        Author:      "SustainableChef",
+    },
+    {
+        Title:       "Regional Pasta Shapes",
+        Description: "The history and purpose behind different pasta shapes across Italy.",
+        Comments:    345,
+        Likes:       987,
+        PondName:    "FoodiesUnite",
+        Author:      "PastaMaster",
     },
 }
 
@@ -751,6 +811,30 @@ var gardenPosts = []Post{
         PondName:    "GreenThumb",
         Author:      "PlantParent",
     },
+    {
+        Title:       "Vertical Gardening Solutions",
+        Description: "Making the most of limited space with vertical gardens.",
+        Comments:    432,
+        Likes:       1234,
+        PondName:    "GreenThumb",
+        Author:      "VerticalGrower",
+    },
+    {
+        Title:       "Native Plant Revolution",
+        Description: "Why and how to incorporate native species into your garden.",
+        Comments:    345,
+        Likes:       987,
+        PondName:    "GreenThumb",
+        Author:      "NativePlanter",
+    },
+    {
+        Title:       "Companion Planting Guide",
+        Description: "Boost your garden's health with strategic plant partnerships.",
+        Comments:    234,
+        Likes:       876,
+        PondName:    "GreenThumb",
+        Author:      "GardenSynergist",
+    },
 }
 
 // Update the existing sciencePosts array
@@ -844,6 +928,30 @@ var sciencePosts = []Post{
         PondName:    "ScienceLab",
         Author:      "GeneGenius",
     },
+    {
+        Title:       "Black Holes: New Discoveries",
+        Description: "Recent observations have challenged our understanding of black hole behavior.",
+        Comments:    876,
+        Likes:       2341,
+        PondName:    "ScienceLab",
+        Author:      "CosmicMind",
+    },
+    {
+        Title:       "CRISPR Breakthroughs 2024",
+        Description: "The latest developments in gene editing technology and their implications.",
+        Comments:    654,
+        Likes:       1567,
+        PondName:    "ScienceLab",
+        Author:      "GeneGenius",
+    },
+    {
+        Title:       "Ocean Floor Mysteries",
+        Description: "New species discovered in deep-sea exploration mission. Pictures inside!",
+        Comments:    432,
+        Likes:       1234,
+        PondName:    "ScienceLab",
+        Author:      "DeepDiver",
+    },
 }
 
 // Update the existing techPosts array
@@ -921,6 +1029,30 @@ var techPosts = []Post{
         Likes:       334,
         PondName:    "TechTalk",
         Author:      "SpeedOptimizer",
+    },
+    {
+        Title:       "The Rise of Quantum Computing",
+        Description: "Breaking down the latest advancements in quantum computing and what it means for developers.",
+        Comments:    567,
+        Likes:       1432,
+        PondName:    "TechTalk",
+        Author:      "QuantumCoder",
+    },
+    {
+        Title:       "Web Assembly: The Future?",
+        Description: "How WASM is changing the landscape of web development. Real-world examples inside.",
+        Comments:    432,
+        Likes:       987,
+        PondName:    "TechTalk",
+        Author:      "WebWizard",
+    },
+    {
+        Title:       "My Journey into Embedded Systems",
+        Description: "From web dev to embedded systems - lessons learned and pitfalls to avoid.",
+        Comments:    234,
+        Likes:       654,
+        PondName:    "TechTalk",
+        Author:      "ChipMaster",
     },
 }
 
@@ -1006,6 +1138,262 @@ var codingPosts = []Post{
         PondName:    "CodingPond",
         Author:      "APIDesigner",
     },
+    {
+        Title:       "Rust vs Go in 2024",
+        Description: "Comparing two modern languages for system programming.",
+        Comments:    789,
+        Likes:       1987,
+        PondName:    "CodingPond",
+        Author:      "SystemsGuru",
+    },
+    {
+        Title:       "Microservices: The Good Parts",
+        Description: "Real-world lessons from 5 years of microservice architecture.",
+        Comments:    654,
+        Likes:       1654,
+        PondName:    "CodingPond",
+        Author:      "MicroMaster",
+    },
+    {
+        Title:       "Frontend Testing Evolution",
+        Description: "How frontend testing has evolved with modern frameworks.",
+        Comments:    432,
+        Likes:       1234,
+        PondName:    "CodingPond",
+        Author:      "TestingPro",
+    },
+}
+
+// Update new post arrays for each new pond
+var musicPosts = []Post{
+    {
+        Title:       "Learning Jazz Piano - Month 1",
+        Description: "Started my jazz piano journey. Here's what I've learned about chord progressions...",
+        Comments:    145,
+        Likes:       432,
+        PondName:    "MusicLounge",
+        Author:      "JazzMaster",
+    },
+    {
+        Title:       "Best DAWs for Beginners 2024",
+        Description: "Comparing popular Digital Audio Workstations for newcomers to music production.",
+        Comments:    234,
+        Likes:       567,
+        PondName:    "MusicLounge",
+        Author:      "BeatMaker",
+    },
+    {
+        Title:       "Classical vs Jazz: The Theory Overlap",
+        Description: "Interesting connections between classical and jazz music theory that might surprise you.",
+        Comments:    189,
+        Likes:       445,
+        PondName:    "MusicLounge",
+        Author:      "TheoryNerd",
+    },
+    {
+        Title:       "Why I switched back to vinyl",
+        Description: "Digital is convenient, but there's something about analog that just hits different...",
+        Comments:    234,
+        Likes:       678,
+        PondName:    "MusicLounge",
+        Author:      "VinylVeteran",
+    },
+    {
+        Title:       "Music theory is clicking finally!",
+        Description: "After 6 months of study, intervals and chord progressions are starting to make sense...",
+        Comments:    123,
+        Likes:       345,
+        PondName:    "MusicLounge",
+        Author:      "MusicNewbie",
+    },
+    {
+        Title:       "Studio Monitor Recommendations?",
+        Description: "Budget is around $500, mainly for electronic music production. Currently looking at...",
+        Comments:    167,
+        Likes:       234,
+        PondName:    "MusicLounge",
+        Author:      "BeatMaker",
+    },
+}
+
+var gamingPosts = []Post{
+    {
+        Title:       "The Rise of Indie Games",
+        Description: "How independent developers are reshaping the gaming industry...",
+        Comments:    345,
+        Likes:       789,
+        PondName:    "GamerHaven",
+        Author:      "IndieGamer",
+    },
+    {
+        Title:       "Next-Gen Console Comparison",
+        Description: "Detailed analysis of the latest gaming consoles: specs, games, and value.",
+        Comments:    567,
+        Likes:       1023,
+        PondName:    "GamerHaven",
+        Author:      "TechGamer",
+    },
+    {
+        Title:       "The Psychology of Game Design",
+        Description: "How game developers use psychology to create engaging experiences.",
+        Comments:    234,
+        Likes:       678,
+        PondName:    "GamerHaven",
+        Author:      "GamePsych",
+    },
+    {
+        Title:       "Finally beat Malenia!",
+        Description: "After 47 attempts, I finally did it! Here's the build that worked for me...",
+        Comments:    445,
+        Likes:       1289,
+        PondName:    "GamerHaven",
+        Author:      "EldenLord",
+    },
+    {
+        Title:       "The state of game preservation",
+        Description: "With digital-only releases and server shutdowns, we're losing gaming history...",
+        Comments:    234,
+        Likes:       876,
+        PondName:    "GamerHaven",
+        Author:      "RetroGamer",
+    },
+    {
+        Title:       "My first speedrun experience",
+        Description: "Decided to try speedrunning Hollow Knight. The community is amazing...",
+        Comments:    156,
+        Likes:       567,
+        PondName:    "GamerHaven",
+        Author:      "SpeedRunner",
+    },
+}
+
+var filmPosts = []Post{
+    {
+        Title:       "The Evolution of CGI in Cinema",
+        Description: "From Jurassic Park to today: How CGI has transformed moviemaking.",
+        Comments:    278,
+        Likes:       567,
+        PondName:    "CinemaSpot",
+        Author:      "FilmBuff",
+    },
+    {
+        Title:       "Hidden Gems: Underrated Films of 2023",
+        Description: "Great movies you might have missed this year.",
+        Comments:    189,
+        Likes:       445,
+        PondName:    "CinemaSpot",
+        Author:      "CinematicArt",
+    },
+    {
+        Title:       "The lost art of practical effects",
+        Description: "Modern CGI is amazing, but there's something special about practical effects...",
+        Comments:    345,
+        Likes:       789,
+        PondName:    "CinemaSpot",
+        Author:      "FilmNoir",
+    },
+    {
+        Title:       "Best Director's Cuts?",
+        Description: "Sometimes longer is better. Here are some films that were improved by their director's cut...",
+        Comments:    234,
+        Likes:       567,
+        PondName:    "CinemaSpot",
+        Author:      "CinematicArt",
+    },
+    {
+        Title:       "Sound design appreciation thread",
+        Description: "Let's talk about films with outstanding sound design. Starting with Dune...",
+        Comments:    189,
+        Likes:       456,
+        PondName:    "CinemaSpot",
+        Author:      "SoundGeek",
+    },
+}
+
+var petsPosts = []Post{
+    {
+        Title:       "Understanding Cat Body Language",
+        Description: "A comprehensive guide to what your cat is trying to tell you.",
+        Comments:    234,
+        Likes:       678,
+        PondName:    "PetPals",
+        Author:      "CatWhisperer",
+    },
+    {
+        Title:       "First-Time Dog Owner Guide",
+        Description: "Everything you need to know before getting your first dog.",
+        Comments:    345,
+        Likes:       789,
+        PondName:    "PetPals",
+        Author:      "DogTrainer",
+    },
+    {
+        Title:       "My rescue story",
+        Description: "After months of patience, my anxious rescue dog finally trusts me. Here's what worked...",
+        Comments:    567,
+        Likes:       1432,
+        PondName:    "PetPals",
+        Author:      "RescueHero",
+    },
+    {
+        Title:       "Raw diet myths debunked",
+        Description: "Veterinarian here! Let's clear up some misconceptions about raw feeding...",
+        Comments:    345,
+        Likes:       876,
+        PondName:    "PetPals",
+        Author:      "VetDoc",
+    },
+    {
+        Title:       "Apartment-friendly pets",
+        Description: "Not just cats and dogs! Here are some great pets for small living spaces...",
+        Comments:    234,
+        Likes:       567,
+        PondName:    "PetPals",
+        Author:      "UrbanPets",
+    },
+}
+
+var fitnessPosts = []Post{
+    {
+        Title:       "Myth-Busting: Common Fitness Misconceptions",
+        Description: "Separating fact from fiction in the fitness world.",
+        Comments:    289,
+        Likes:       567,
+        PondName:    "FitnessZone",
+        Author:      "FitCoach",
+    },
+    {
+        Title:       "Building a Home Gym on a Budget",
+        Description: "Smart ways to create your workout space without breaking the bank.",
+        Comments:    178,
+        Likes:       445,
+        PondName:    "FitnessZone",
+        Author:      "HomeGymPro",
+    },
+    {
+        Title:       "From couch to 5K - Success!",
+        Description: "Just finished my first 5K after being sedentary for years. Here's my journey...",
+        Comments:    345,
+        Likes:       987,
+        PondName:    "FitnessZone",
+        Author:      "RunnerNewbie",
+    },
+    {
+        Title:       "The protein myth",
+        Description: "Sports nutritionist here! Let's talk about how much protein you really need...",
+        Comments:    456,
+        Likes:       1023,
+        PondName:    "FitnessZone",
+        Author:      "NutritionPro",
+    },
+    {
+        Title:       "Mobility work changed my life",
+        Description: "After years of lifting, adding mobility work made the biggest difference...",
+        Comments:    234,
+        Likes:       678,
+        PondName:    "FitnessZone",
+        Author:      "FlexMaster",
+    },
 }
 
 // Update allPosts to include all new posts
@@ -1026,6 +1414,11 @@ func init() {
     allPosts = append(allPosts, sciencePosts...)
     allPosts = append(allPosts, techPosts...)
     allPosts = append(allPosts, codingPosts...)
+    allPosts = append(allPosts, musicPosts...)
+    allPosts = append(allPosts, gamingPosts...)
+    allPosts = append(allPosts, filmPosts...)
+    allPosts = append(allPosts, petsPosts...)
+    allPosts = append(allPosts, fitnessPosts...)
 }
 
 // Add this function to get all posts
