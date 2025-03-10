@@ -244,6 +244,20 @@
         .nav-profile-icon i {
             font-size: 1rem;
         }
+
+        .toast-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1050;
+        }
+
+        .ribbit-toast {
+            background-color: var(--ribbit-light);
+            border-radius: 15px;
+            box-shadow: 0 4px 12px rgba(74,102,112,0.15);
+            border-left: 4px solid var(--ribbit-accent);
+        }
     </style>
 </head>
 <body>
@@ -252,11 +266,17 @@
             <div class="container">
                 <h1 class="navbar-brand h1 mb-0"><i class="bi bi-flower1 me-2"></i>Ribbit</h1>
                 
-                <!-- Add search form -->
-                <form class="d-flex mx-auto" action="/search" method="GET">
+                <!-- Update search form in navbar -->
+                <form class="d-flex mx-auto position-relative" action="/search" method="GET" role="search">
                     <div class="input-group" style="min-width: 300px;">
-                        <input type="search" name="q" class="form-control" placeholder="Search posts..." 
-                            aria-label="Search" style="background-color: var(--ribbit-light);">
+                        <input type="search" 
+                               name="q" 
+                               class="form-control search-input" 
+                               placeholder="Search posts..." 
+                               aria-label="Search"
+                               list="search-suggestions"
+                               autocomplete="off"
+                               style="background-color: var(--ribbit-light);">
                         <button class="btn btn-outline-light" type="submit">
                             <i class="bi bi-search"></i>
                         </button>
@@ -373,5 +393,51 @@
             </div>
         </div>
     </footer>
+
+    <!-- Add toast container before closing body tag -->
+    <div class="toast-container">
+        <div class="toast ribbit-toast" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-body">
+                <i class="bi bi-info-circle me-2"></i>
+                Searching through the pond...
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize toasts
+        document.addEventListener('DOMContentLoaded', function() {
+            var toastElList = [].slice.call(document.querySelectorAll('.toast'));
+            toastElList.map(function (toastEl) {
+                return new bootstrap.Toast(toastEl, {
+                    autohide: true,
+                    delay: 3000
+                });
+            });
+        });
+
+        // Show loading state for search
+        document.querySelector('form[action="/search"]').addEventListener('submit', function(e) {
+            const button = this.querySelector('button');
+            const icon = button.querySelector('i');
+            button.disabled = true;
+            icon.className = 'spinner-border spinner-border-sm';
+            
+            // Show toast after search
+            setTimeout(() => {
+                const toast = document.querySelector('.toast');
+                const bsToast = new bootstrap.Toast(toast);
+                bsToast.show();
+            }, 1000);
+        });
+
+        // Add keyboard navigation
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey && e.key === 'k') {
+                e.preventDefault();
+                document.querySelector('.search-input').focus();
+            }
+        });
+    </script>
 </body>
 </html> 

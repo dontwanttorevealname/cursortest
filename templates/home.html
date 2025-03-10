@@ -273,6 +273,84 @@
         .avatar-labrat {
             background-color: #e1f5fe;  /* Light cyan */
         }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .btn-ribbit:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+        
+        .spinner-border {
+            width: 1rem;
+            height: 1rem;
+            border-width: 0.15em;
+        }
+        
+        .post-card {
+            animation: slideIn 0.3s ease-out forwards;
+        }
+
+        [data-bs-toggle="tooltip"] {
+            cursor: pointer;
+        }
+
+        /* Notification styles */
+        .dropdown-menu {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 4px 12px rgba(74,102,112,0.15);
+            padding: 0.5rem;
+            min-width: 280px;
+        }
+
+        .dropdown-item {
+            border-radius: 10px;
+            padding: 0.75rem 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .dropdown-item:hover {
+            background-color: var(--ribbit-hover);
+            transform: translateX(5px);
+        }
+
+        /* Loading skeleton animation */
+        @keyframes loading {
+            0% { background-position: -200px 0 }
+            100% { background-position: 200px 0 }
+        }
+
+        .skeleton {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200px 100%;
+            animation: loading 1.5s infinite;
+            border-radius: 4px;
+        }
+
+        /* Toast notification */
+        .toast-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1050;
+        }
+
+        .ribbit-toast {
+            background-color: var(--ribbit-light);
+            border-radius: 15px;
+            box-shadow: 0 4px 12px rgba(74,102,112,0.15);
+            border-left: 4px solid var(--ribbit-accent);
+        }
     </style>
 </head>
 <body class="bg-light">
@@ -280,18 +358,23 @@
         <nav class="navbar navbar-expand-lg">
             <div class="container">
                 <h1 class="navbar-brand h1 mb-0"><i class="bi bi-flower1 me-2"></i>Ribbit</h1>
-
-                                <!-- Add search form -->
-                <form class="d-flex mx-auto" action="/search" method="GET">
+                
+                <!-- Update search form in navbar -->
+                <form class="d-flex mx-auto position-relative" action="/search" method="GET" role="search">
                     <div class="input-group" style="min-width: 300px;">
-                        <input type="search" name="q" class="form-control" placeholder="Search posts..." 
-                            aria-label="Search" style="background-color: var(--ribbit-light);">
+                        <input type="search" 
+                               name="q" 
+                               class="form-control search-input" 
+                               placeholder="Search posts..." 
+                               aria-label="Search"
+                               list="search-suggestions"
+                               autocomplete="off"
+                               style="background-color: var(--ribbit-light);">
                         <button class="btn btn-outline-light" type="submit">
                             <i class="bi bi-search"></i>
                         </button>
                     </div>
                 </form>
-
 
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item"><a href="/" class="nav-link active"><i class="bi bi-house-door-fill me-1"></i>Home</a></li>
@@ -369,7 +452,7 @@
                             <p class="post-description mb-2">{{.Description}}</p>
                             <div class="post-interactions">
                                 <div class="interaction-btn">
-                                    <i class="bi bi-chat-dots"></i>
+                                    <i class="bi bi-chat-dots" data-bs-toggle="tooltip" title="Comments"></i>
                                     <span>{{.Comments}} comments</span>
                                 </div>
                                 <div class="interaction-btn">
@@ -394,39 +477,42 @@
                             <i class="bi bi-water me-2"></i>Ripples from Your Ponds
                         </h2>
                         
-                        {{range $index, $post := .User.Posts}}
-                        {{if ge $index 3}}
-                        <div class="post-card">
-                            <div class="d-flex justify-content-between align-items-start mb-2">
-                                <div class="pond-tag">
-                                    <i class="bi bi-circle-fill me-1"></i>
-                                    <small>{{.PondName}}</small>
+                        <div id="posts-container">
+                            {{range $index, $post := .User.Posts}}
+                            <div class="post-card" {{if gt $index 5}}style="display: none;"{{end}}>
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <div class="pond-tag">
+                                        <i class="bi bi-water me-1"></i>
+                                        <small>{{.PondName}}</small>
+                                    </div>
+                                    <small class="text-muted">Posted by {{.Author}}</small>
                                 </div>
-                                <small class="text-muted">Posted by {{.Author}}</small>
+                                <h3 class="post-title h5">{{.Title}}</h3>
+                                <p class="post-description mb-2">{{.Description}}</p>
+                                <div class="post-interactions">
+                                    <div class="interaction-btn">
+                                        <i class="bi bi-chat-dots"></i>
+                                        <span>{{.Comments}} comments</span>
+                                    </div>
+                                    <div class="interaction-btn">
+                                        <i class="bi bi-heart"></i>
+                                        <span>{{.Likes}} likes</span>
+                                    </div>
+                                    <div class="interaction-btn">
+                                        <i class="bi bi-share"></i>
+                                        <span>Share</span>
+                                    </div>
+                                </div>
                             </div>
-                            <h3 class="post-title h5">{{.Title}}</h3>
-                            <p class="post-description mb-2">{{.Description}}</p>
-                            <div class="post-interactions">
-                                <div class="interaction-btn">
-                                    <i class="bi bi-chat-dots"></i>
-                                    <span>{{.Comments}} comments</span>
-                                </div>
-                                <div class="interaction-btn">
-                                    <i class="bi bi-heart"></i>
-                                    <span>{{.Likes}} likes</span>
-                                </div>
-                                <div class="interaction-btn">
-                                    <i class="bi bi-share"></i>
-                                    <span>Share</span>
-                                </div>
-                            </div>
+                            {{end}}
                         </div>
-                        {{end}}
-                        {{end}}
 
-                        <button class="btn btn-ribbit w-100 mt-3">
+                        {{if gt (len .User.Posts) 6}}
+                        <button id="load-more" class="btn btn-ribbit w-100 mt-3" onclick="loadMorePosts()">
+                            <span class="spinner-border spinner-border-sm me-2 d-none" role="status" aria-hidden="true"></span>
                             <i class="bi bi-arrow-down-circle me-2"></i>See More Ripples
                         </button>
+                        {{end}}
                     </div>
                 </div>
             </div>
@@ -477,5 +563,117 @@
             </div>
         </div>
     </footer>
+
+    <!-- Add scroll to top button -->
+    <button id="scroll-top" class="btn btn-ribbit position-fixed bottom-0 end-0 m-3 d-none" 
+            style="z-index: 1000; opacity: 0.9;" 
+            onclick="window.scrollTo({top: 0, behavior: 'smooth'})">
+        <i class="bi bi-arrow-up-circle"></i>
+    </button>
+
+    <!-- Add toast container -->
+    <div class="toast-container">
+        <div class="toast ribbit-toast" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-header">
+                <i class="bi bi-info-circle me-2"></i>
+                <strong class="me-auto">Ribbit</strong>
+                <small>Just now</small>
+                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+            <div class="toast-body">
+                Your search results have been sorted by engagement.
+            </div>
+        </div>
+    </div>
+
+    <script>
+    let currentlyShown = 6;
+    const postsPerLoad = 3;
+    const totalPosts = {{len .User.Posts}};
+
+    function loadMorePosts() {
+        const button = document.getElementById('load-more');
+        const spinner = button.querySelector('.spinner-border');
+        const posts = document.querySelectorAll('#posts-container .post-card');
+        
+        // Show loading state
+        spinner.classList.remove('d-none');
+        button.disabled = true;
+        
+        // Simulate loading delay for better UX
+        setTimeout(() => {
+            let shown = 0;
+            posts.forEach((post, index) => {
+                if (index >= currentlyShown && shown < postsPerLoad) {
+                    post.style.display = 'block';
+                    post.style.animation = 'slideIn 0.3s ease-out forwards';
+                    shown++;
+                }
+            });
+            
+            currentlyShown += shown;
+            
+            // Hide button if no more posts
+            if (currentlyShown >= posts.length) {
+                button.style.display = 'none';
+            }
+            
+            // Reset button state
+            spinner.classList.add('d-none');
+            button.disabled = false;
+        }, 500);
+    }
+
+    // Add scroll to top functionality
+    window.onscroll = function() {
+        const scrollBtn = document.getElementById('scroll-top');
+        if (document.body.scrollTop > 300 || document.documentElement.scrollTop > 300) {
+            scrollBtn.classList.remove('d-none');
+        } else {
+            scrollBtn.classList.add('d-none');
+        }
+    };
+
+    // Initialize tooltips and toasts
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize tooltips
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+
+        // Initialize toasts
+        var toastElList = [].slice.call(document.querySelectorAll('.toast'));
+        toastElList.map(function (toastEl) {
+            return new bootstrap.Toast(toastEl, {
+                autohide: true,
+                delay: 3000
+            });
+        });
+    });
+
+    // Show loading state for search
+    document.querySelector('form[action="/search"]').addEventListener('submit', function(e) {
+        const button = this.querySelector('button');
+        const icon = button.querySelector('i');
+        button.disabled = true;
+        icon.className = 'spinner-border spinner-border-sm';
+        
+        // Show toast after search
+        setTimeout(() => {
+            const toast = document.querySelector('.toast');
+            const bsToast = new bootstrap.Toast(toast);
+            bsToast.show();
+        }, 1000);
+    });
+
+    // Add keyboard navigation
+    document.addEventListener('keydown', function(e) {
+        if (e.ctrlKey && e.key === 'k') {
+            e.preventDefault();
+            document.querySelector('.search-input').focus();
+        }
+    });
+    </script>
 </body>
 </html> 

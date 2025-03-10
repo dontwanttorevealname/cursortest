@@ -1,8 +1,13 @@
 package templates
 
 import (
+    "encoding/json"
+    "fmt"
     "math/rand"
+    "net/http"
     "sort"
+    "strconv"
+    "time"
 )
 
 var (
@@ -13,6 +18,7 @@ var (
         Likes:       432,
         PondName:    "TechTalk",
         Author:      "ByteMaster",
+        SecondsAgo:  rand.Intn(2592000), // Random time up to 30 days ago
     }
 
     commonGardenPost = Post{
@@ -100,38 +106,22 @@ var (
     // Update official posts to include author display names
     officialWelcomePost = Post{
         Title:       "Welcome to Ribbit!",
-        Description: "Get started with your journey here. Learn about our community guidelines and features.",
-        Comments:    42,
-        Likes:       156,
+        Description: "We're excited to have you join our community...",
+        Comments:    789,
+        Likes:       1234,
         PondName:    "Official",
         Author:      "Ribbit Admin",
+        SecondsAgo:  rand.Intn(31536000),
     }
 
     officialUpdatePost = Post{
-        Title:       "New Features: Enhanced Pond Navigation",
-        Description: "We've updated how you browse and discover new ponds. Check out the new features!",
-        Comments:    83,
-        Likes:       245,
+        Title:       "New Features Coming Soon",
+        Description: "We're working on some exciting updates...",
+        Comments:    456,
+        Likes:       987,
         PondName:    "Official",
         Author:      "Ribbit Admin",
-    }
-
-    officialCommunityPost = Post{
-        Title:       "Community Spotlight: February Stars",
-        Description: "Celebrating our most active contributors and their amazing content this month.",
-        Comments:    67,
-        Likes:       198,
-        PondName:    "Official",
-        Author:      "Ribbit Admin",
-    }
-
-    officialGuidelinesPost = Post{
-        Title:       "Updated Community Guidelines",
-        Description: "Important updates to our community guidelines. Please review these changes.",
-        Comments:    91,
-        Likes:       267,
-        PondName:    "Official",
-        Author:      "Ribbit Admin",
+        SecondsAgo:  rand.Intn(31536000),
     }
 
     musicPond = Pond{Name: "MusicLounge", Description: "For music lovers and creators", Members: "12.3K"}
@@ -155,8 +145,8 @@ type Post struct {
     Comments    int
     Likes       int
     PondName    string
-    Author      string    // Add author field
-    Type        string    // Add type field
+    Author      string
+    SecondsAgo  int
 }
 
 type Pond struct {
@@ -193,51 +183,52 @@ func getRandomPostsFromPond(posts []Post, minCount int, excludeAuthor string) []
 
 // Get random posts for a user based on their pond memberships
 func getRandomPostsForUser(userPonds []Pond, excludeAuthor string) []Post {
-    var allPosts []Post
+    var posts []Post
     
-    // Get random number of posts from each pond
+    // Get all available posts for user's ponds
     for _, pond := range userPonds {
-        var pondPosts []Post
         switch pond.Name {
         case "TechTalk":
-            pondPosts = getRandomPostsFromPond(techPosts, 3, excludeAuthor)
+            posts = append(posts, techPosts...)
         case "GreenThumb":
-            pondPosts = getRandomPostsFromPond(gardenPosts, 3, excludeAuthor)
+            posts = append(posts, gardenPosts...)
         case "ArtistsCorner":
-            pondPosts = getRandomPostsFromPond(artPosts, 3, excludeAuthor)
-        case "FoodiesUnite":
-            pondPosts = getRandomPostsFromPond(foodPosts, 3, excludeAuthor)
-        case "ScienceLab":
-            pondPosts = getRandomPostsFromPond(sciencePosts, 3, excludeAuthor)
+            posts = append(posts, artPosts...)
         case "BookClub":
-            pondPosts = getRandomPostsFromPond(bookPosts, 3, excludeAuthor)
+            posts = append(posts, bookPosts...)
+        case "FoodiesUnite":
+            posts = append(posts, foodPosts...)
+        case "ScienceLab":
+            posts = append(posts, sciencePosts...)
         case "CodingPond":
-            pondPosts = getRandomPostsFromPond(codingPosts, 3, excludeAuthor)
+            posts = append(posts, codingPosts...)
         case "MusicLounge":
-            pondPosts = getRandomPostsFromPond(musicPosts, 3, excludeAuthor)
+            posts = append(posts, musicPosts...)
         case "GamerHaven":
-            pondPosts = getRandomPostsFromPond(gamingPosts, 3, excludeAuthor)
+            posts = append(posts, gamingPosts...)
         case "CinemaSpot":
-            pondPosts = getRandomPostsFromPond(filmPosts, 3, excludeAuthor)
+            posts = append(posts, filmPosts...)
         case "PetPals":
-            pondPosts = getRandomPostsFromPond(petsPosts, 3, excludeAuthor)
+            posts = append(posts, petsPosts...)
         case "FitnessZone":
-            pondPosts = getRandomPostsFromPond(fitnessPosts, 3, excludeAuthor)
+            posts = append(posts, fitnessPosts...)
         }
-        allPosts = append(allPosts, pondPosts...)
     }
 
-    // Shuffle all selected posts
-    rand.Shuffle(len(allPosts), func(i, j int) {
-        allPosts[i], allPosts[j] = allPosts[j], allPosts[i]
+    // Filter out posts by the current user
+    filteredPosts := make([]Post, 0)
+    for _, post := range posts {
+        if post.Author != excludeAuthor {
+            filteredPosts = append(filteredPosts, post)
+        }
+    }
+
+    // Shuffle the posts
+    rand.Shuffle(len(filteredPosts), func(i, j int) {
+        filteredPosts[i], filteredPosts[j] = filteredPosts[j], filteredPosts[i]
     })
 
-    // Return random number between 6 and 10 posts
-    numPosts := 6 + rand.Intn(5)
-    if numPosts > len(allPosts) {
-        return allPosts
-    }
-    return allPosts[:numPosts]
+    return filteredPosts
 }
 
 // GetUserTemplate returns the template for a specific user
@@ -1059,20 +1050,22 @@ var techPosts = []Post{
 // Update the existing codingPosts array
 var codingPosts = []Post{
     {
-        Title:       "Clean Code Principles",
-        Description: "Writing maintainable and efficient code that others can understand.",
-        Comments:    198,
-        Likes:       445,
+        Title:       "The Art of Clean Code",
+        Description: "Best practices for writing maintainable and efficient code.",
+        Comments:    234,
+        Likes:       567,
         PondName:    "CodingPond",
-        Author:      "CodeCleaner",
+        Author:      "ByteMaster",
+        SecondsAgo:  rand.Intn(31536000), // Random time up to 1 year ago (365 days)
     },
     {
-        Title:       "Design Patterns in Go",
-        Description: "Implementing common design patterns in Go with practical examples.",
-        Comments:    167,
-        Likes:       389,
+        Title:       "Modern Vim Workflow",
+        Description: "A practical guide to modern Vim workflow with LSP, fuzzy finding, and custom macros.",
+        Comments:    345,
+        Likes:       789,
         PondName:    "CodingPond",
-        Author:      "GoArchitect",
+        Author:      "VimWizard",
+        SecondsAgo:  rand.Intn(31536000),
     },
     {
         Title:       "Test-Driven Development",
@@ -1173,6 +1166,7 @@ var musicPosts = []Post{
         Likes:       432,
         PondName:    "MusicLounge",
         Author:      "JazzMaster",
+        SecondsAgo:  rand.Intn(31536000),
     },
     {
         Title:       "Best DAWs for Beginners 2024",
@@ -1224,6 +1218,7 @@ var gamingPosts = []Post{
         Likes:       789,
         PondName:    "GamerHaven",
         Author:      "IndieGamer",
+        SecondsAgo:  rand.Intn(31536000),
     },
     {
         Title:       "Next-Gen Console Comparison",
@@ -1275,6 +1270,7 @@ var filmPosts = []Post{
         Likes:       567,
         PondName:    "CinemaSpot",
         Author:      "FilmBuff",
+        SecondsAgo:  rand.Intn(31536000),
     },
     {
         Title:       "Hidden Gems: Underrated Films of 2023",
@@ -1283,6 +1279,7 @@ var filmPosts = []Post{
         Likes:       445,
         PondName:    "CinemaSpot",
         Author:      "CinematicArt",
+        SecondsAgo:  rand.Intn(31536000),
     },
     {
         Title:       "The lost art of practical effects",
@@ -1291,6 +1288,7 @@ var filmPosts = []Post{
         Likes:       789,
         PondName:    "CinemaSpot",
         Author:      "FilmNoir",
+        SecondsAgo:  rand.Intn(31536000),
     },
     {
         Title:       "Best Director's Cuts?",
@@ -1299,6 +1297,7 @@ var filmPosts = []Post{
         Likes:       567,
         PondName:    "CinemaSpot",
         Author:      "CinematicArt",
+        SecondsAgo:  rand.Intn(31536000),
     },
     {
         Title:       "Sound design appreciation thread",
@@ -1307,6 +1306,7 @@ var filmPosts = []Post{
         Likes:       456,
         PondName:    "CinemaSpot",
         Author:      "SoundGeek",
+        SecondsAgo:  rand.Intn(31536000),
     },
 }
 
@@ -1318,6 +1318,7 @@ var petsPosts = []Post{
         Likes:       678,
         PondName:    "PetPals",
         Author:      "CatWhisperer",
+        SecondsAgo:  rand.Intn(31536000),
     },
     {
         Title:       "First-Time Dog Owner Guide",
@@ -1326,6 +1327,7 @@ var petsPosts = []Post{
         Likes:       789,
         PondName:    "PetPals",
         Author:      "DogTrainer",
+        SecondsAgo:  rand.Intn(31536000),
     },
     {
         Title:       "My rescue story",
@@ -1334,6 +1336,7 @@ var petsPosts = []Post{
         Likes:       1432,
         PondName:    "PetPals",
         Author:      "RescueHero",
+        SecondsAgo:  rand.Intn(31536000),
     },
     {
         Title:       "Raw diet myths debunked",
@@ -1342,6 +1345,7 @@ var petsPosts = []Post{
         Likes:       876,
         PondName:    "PetPals",
         Author:      "VetDoc",
+        SecondsAgo:  rand.Intn(31536000),
     },
     {
         Title:       "Apartment-friendly pets",
@@ -1350,6 +1354,7 @@ var petsPosts = []Post{
         Likes:       567,
         PondName:    "PetPals",
         Author:      "UrbanPets",
+        SecondsAgo:  rand.Intn(31536000),
     },
 }
 
@@ -1361,6 +1366,7 @@ var fitnessPosts = []Post{
         Likes:       567,
         PondName:    "FitnessZone",
         Author:      "FitCoach",
+        SecondsAgo:  rand.Intn(31536000),
     },
     {
         Title:       "Building a Home Gym on a Budget",
@@ -1369,6 +1375,7 @@ var fitnessPosts = []Post{
         Likes:       445,
         PondName:    "FitnessZone",
         Author:      "HomeGymPro",
+        SecondsAgo:  rand.Intn(31536000),
     },
     {
         Title:       "From couch to 5K - Success!",
@@ -1377,6 +1384,7 @@ var fitnessPosts = []Post{
         Likes:       987,
         PondName:    "FitnessZone",
         Author:      "RunnerNewbie",
+        SecondsAgo:  rand.Intn(31536000),
     },
     {
         Title:       "The protein myth",
@@ -1385,6 +1393,7 @@ var fitnessPosts = []Post{
         Likes:       1023,
         PondName:    "FitnessZone",
         Author:      "NutritionPro",
+        SecondsAgo:  rand.Intn(31536000),
     },
     {
         Title:       "Mobility work changed my life",
@@ -1393,7 +1402,29 @@ var fitnessPosts = []Post{
         Likes:       678,
         PondName:    "FitnessZone",
         Author:      "FlexMaster",
+        SecondsAgo:  rand.Intn(31536000),
     },
+}
+
+// Update official posts array
+var officialCommunityPost = Post{
+    Title:       "Community Update: New Features",
+    Description: "Check out our latest platform improvements and upcoming changes...",
+    Comments:    567,
+    Likes:       890,
+    PondName:    "Official",
+    Author:      "Ribbit Admin",
+    SecondsAgo:  rand.Intn(31536000),
+}
+
+var officialGuidelinesPost = Post{
+    Title:       "Community Guidelines Reminder",
+    Description: "A friendly reminder about our community standards and how to keep Ribbit welcoming for everyone...",
+    Comments:    234,
+    Likes:       567,
+    PondName:    "Official",
+    Author:      "Ribbit Admin",
+    SecondsAgo:  rand.Intn(31536000),
 }
 
 // Update allPosts to include all new posts
@@ -1406,6 +1437,7 @@ var allPosts = []Post{
 }
 
 func init() {
+    rand.Seed(time.Now().UnixNano())
     // Append all pond-specific posts to allPosts
     allPosts = append(allPosts, artPosts...)
     allPosts = append(allPosts, bookPosts...)
@@ -1421,7 +1453,118 @@ func init() {
     allPosts = append(allPosts, fitnessPosts...)
 }
 
-// Add this function to get all posts
+// Add this helper function
+func formatTimeAgo(secondsAgo int) string {
+    minutes := secondsAgo / 60
+    hours := minutes / 60
+    days := hours / 24
+    weeks := days / 7
+    months := days / 30
+
+    if months > 0 {
+        if months == 1 {
+            return "1 month ago"
+        }
+        return fmt.Sprintf("%d months ago", months)
+    }
+    if weeks > 0 {
+        if weeks == 1 {
+            return "1 week ago"
+        }
+        return fmt.Sprintf("%d weeks ago", weeks)
+    }
+    if days > 0 {
+        if days == 1 {
+            return "1 day ago"
+        }
+        return fmt.Sprintf("%d days ago", days)
+    }
+    if hours > 0 {
+        if hours == 1 {
+            return "1 hour ago"
+        }
+        return fmt.Sprintf("%d hours ago", hours)
+    }
+    if minutes > 0 {
+        if minutes == 1 {
+            return "1 minute ago"
+        }
+        return fmt.Sprintf("%d minutes ago", minutes)
+    }
+    return "just now"
+}
+
+// Modify the GetAllPosts function to sort by time
 func GetAllPosts() []Post {
-    return allPosts
-} 
+    // Create a copy of allPosts to sort
+    posts := make([]Post, len(allPosts))
+    copy(posts, allPosts)
+    
+    // Sort posts by SecondsAgo (most recent first)
+    sort.Slice(posts, func(i, j int) bool {
+        return posts[i].SecondsAgo < posts[j].SecondsAgo
+    })
+    
+    return posts
+}
+
+// Add these new functions
+func (u *UserTemplate) GetPaginatedPosts(start, count int) []Post {
+    allUserPosts := getRandomPostsForUser(u.Ponds, u.Email)
+    
+    // Ensure we don't exceed slice bounds
+    end := start + count
+    if end > len(allUserPosts) {
+        end = len(allUserPosts)
+    }
+    if start >= len(allUserPosts) {
+        return []Post{}
+    }
+    
+    return allUserPosts[start:end]
+}
+
+// Add this handler function
+func HandleGetPosts(w http.ResponseWriter, r *http.Request) {
+    fmt.Println("HandleGetPosts called")
+    
+    // Parse query parameters
+    startStr := r.URL.Query().Get("start")
+    countStr := r.URL.Query().Get("count")
+    
+    start, err := strconv.Atoi(startStr)
+    if err != nil {
+        fmt.Println("Error parsing start:", err)
+        start = 0
+    }
+    
+    count, err := strconv.Atoi(countStr)
+    if err != nil {
+        fmt.Println("Error parsing count:", err)
+        count = 3
+    }
+    
+    fmt.Printf("Fetching posts from %d to %d\n", start, count)
+    
+    // Get user from session
+    user, ok := r.Context().Value("user").(*UserTemplate)
+    if !ok {
+        fmt.Println("User not found in context")
+        http.Error(w, "Unauthorized", http.StatusUnauthorized)
+        return
+    }
+    
+    // Get paginated posts
+    posts := user.GetPaginatedPosts(start, count)
+    fmt.Printf("Found %d posts\n", len(posts))
+    
+    // Set JSON content type
+    w.Header().Set("Content-Type", "application/json")
+    
+    // Encode posts as JSON and send response
+    if err := json.NewEncoder(w).Encode(posts); err != nil {
+        fmt.Println("Error encoding posts:", err)
+        http.Error(w, "Failed to encode posts", http.StatusInternalServerError)
+        return
+    }
+}
