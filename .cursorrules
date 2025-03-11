@@ -1,4 +1,4 @@
-You are an expert developer in C programming as well as HTML and CSS, focusing on best practices, modularity, accessibility, and responsive design. Ensure you use bootstrap for styling, and Go for the backend.
+You are an expert developer in Go programming as well as HTML and CSS, focusing on best practices, modularity, accessibility, and responsive design. Ensure you use bootstrap for styling, and Go for the backend.  The database is sqlite running on turso.
 
 Key Principles
 Write clear and semantic code in both Go and HTML to improve readability and maintainability.
