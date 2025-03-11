@@ -6,6 +6,7 @@ import (
     "net/http"
     "ribbit/internal/templates"
     "strings"
+    "github.com/joho/godotenv"
 )
 
 // PageData represents the data we'll pass to our template
@@ -19,6 +20,12 @@ type PageData struct {
 }
 
 func main() {
+    // Load .env file
+    err := godotenv.Load()
+    if err != nil {
+        log.Fatal("Error loading .env file")
+    }
+
     // Serve static files
     fs := http.FileServer(http.Dir("static"))
     http.Handle("/static/", http.StripPrefix("/static/", fs))
@@ -147,7 +154,11 @@ func handleTrending(w http.ResponseWriter, r *http.Request) {
     }
 
     // Get trending posts
-    trendingPosts := templates.GetTrendingPosts()
+    trendingPosts, err := templates.GetTrendingPosts()
+    if err != nil {
+        log.Printf("Error getting trending posts: %v", err)
+        trendingPosts = []templates.Post{}
+    }
 
     // Prepare data for the trending page
     data := PageData{
@@ -190,9 +201,15 @@ func handleProfile(w http.ResponseWriter, r *http.Request) {
     }
 
     // Prepare data for the profile page
+    allPosts, err := templates.GetAllPosts()
+    if err != nil {
+        log.Printf("Error getting all posts: %v", err)
+        allPosts = []templates.Post{}
+    }
+
     data := PageData{
         User:     userTemplate,
-        AllPosts: templates.GetAllPosts(),
+        AllPosts: allPosts,
     }
 
     tmpl, err := template.New("profile.html").Funcs(template.FuncMap{
@@ -228,7 +245,11 @@ func handleSearch(w http.ResponseWriter, r *http.Request) {
 
     // Search through all posts
     var results []templates.Post
-    allPosts := templates.GetAllPosts()
+    allPosts, err := templates.GetAllPosts()
+    if err != nil {
+        log.Printf("Error getting posts: %v", err)
+        allPosts = []templates.Post{}
+    }
     
     for _, post := range allPosts {
         if strings.Contains(strings.ToLower(post.Title), query) ||

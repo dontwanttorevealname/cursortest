@@ -13,7 +13,7 @@ INSERT INTO ponds (name, description, member_count) VALUES
     ('GamerHaven', 'Gaming discussions and news', 18700),
     ('CinemaSpot', 'Movie reviews and discussions', 14200),
     ('PetPals', 'All about our furry friends', 10100),
-    ('FitnessZone', 'Health and workout tips', 13400);
+    ('FitnessZone', 'Health and workout tips', 13400)
 
 -- +goose StatementEnd
 

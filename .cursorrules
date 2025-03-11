@@ -29,6 +29,62 @@ func factorial(n int) int {
     }
     return n * factorial(n-1) // recursive call
 }
+
+
+Database Structure
+The application uses SQLite (via Turso) with the following schema:
+
+Tables:
+1. users
+   - Primary table for user accounts
+   - Fields:
+     * id (INTEGER PRIMARY KEY): Unique user identifier
+     * username (TEXT, UNIQUE): User's display name
+     * password_hash (TEXT): Securely stored password
+     * description (TEXT): Optional user bio
+     * join_date (TIMESTAMP): Account creation timestamp
+
+2. ponds
+   - Represents community groups/forums
+   - Fields:
+     * id (INTEGER PRIMARY KEY): Unique pond identifier
+     * name (TEXT, UNIQUE): Community name
+     * description (TEXT): Community description
+     * member_count (INTEGER): Number of members
+     * created_at (TIMESTAMP): Pond creation date
+
+3. ripples
+   - Stores user posts/content
+   - Fields:
+     * id (INTEGER PRIMARY KEY): Unique post identifier
+     * title (TEXT): Post title
+     * content (TEXT): Post content
+     * like_count (INTEGER): Number of likes
+     * comment_count (INTEGER): Number of comments
+     * author_username (TEXT): Post creator's username
+     * pond_name (TEXT): Associated community name
+     * created_at (TIMESTAMP): Post creation time
+
+4. user_ponds
+   - Junction table for user-pond memberships
+   - Fields:
+     * user_id (INTEGER): References users.id
+     * pond_id (INTEGER): References ponds.id
+     * joined_at (TIMESTAMP): Membership date
+   - Composite Primary Key: (user_id, pond_id)
+
+Indexes:
+- idx_ripples_author: Optimizes queries by author_username
+- idx_ripples_pond: Optimizes queries by pond_name
+- idx_user_ponds_user: Optimizes user membership lookups
+- idx_user_ponds_pond: Optimizes pond member lookups
+
+Key Relationships:
+- Users can join multiple ponds (M:N via user_ponds)
+- Ripples belong to one pond and one author
+- Default pond "OFFICIAL" exists for general posts
+
+
 HTML and CSS
 HTML
 Use semantic elements (e.g., <header>, <main>, <footer>, <article>, <section>).
