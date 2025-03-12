@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ribbit - Home Feed</title>
+    <title>Ribbit - Create New Post</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
@@ -353,7 +353,7 @@
         }
     </style>
 </head>
-<body class="bg-light">
+<body>
     <header>
         <nav class="navbar navbar-expand-lg">
             <div class="container">
@@ -422,258 +422,84 @@
         </nav>
     </header>
 
-    <main class="container py-4">
-        <div class="row">
-            <!-- Main Content -->
+    <main class="container py-5">
+        <div class="row justify-content-center">
             <div class="col-md-8">
-                <!-- Create Post Card -->
-                <div class="create-post-card text-center" onclick="window.location.href='/create-post'" style="cursor: pointer;">
-                    <i class="bi bi-plus-circle fs-4 me-2"></i>
-                    <span>Create a new post</span>
-                </div>
-
-                <!-- Ribbit News Section -->
                 <div class="card">
                     <div class="card-body">
-                        <h2 class="section-title">
-                            <i class="bi bi-newspaper me-2"></i>Ribbit News
-                        </h2>
-                        {{range .User.OfficialPosts}}
-                        {{if eq .PondName "Official"}}  <!-- Only show posts marked as Official -->
-                        <div class="post-card">
-                            <div class="d-flex justify-content-between align-items-start mb-2">
-                                <div class="official-tag">
-                                    <i class="bi bi-patch-check-fill me-1"></i>
-                                    <small>Official</small>
-                                </div>
-                                <small class="text-muted">Posted by {{.Author}}</small>
+                        <h2 class="section-title"><i class="bi bi-pencil-square me-2"></i>Create a New Post</h2>
+                        <form action="/submit-post" method="POST">
+                            <div class="mb-4">
+                                <label for="title" class="form-label">Post Title</label>
+                                <input type="text" class="form-control" id="title" name="title" required>
                             </div>
-                            <h3 class="post-title h5">{{.Title}}</h3>
-                            <p class="post-description mb-2">{{.Description}}</p>
-                            <div class="post-interactions">
-                                <div class="interaction-btn">
-                                    <i class="bi bi-chat-dots" data-bs-toggle="tooltip" title="Comments"></i>
-                                    <span>{{.Comments}} comments</span>
-                                </div>
-                                <div class="interaction-btn">
-                                    <i class="bi bi-heart"></i>
-                                    <span>{{.Likes}} likes</span>
-                                </div>
-                                <div class="interaction-btn">
-                                    <i class="bi bi-share"></i>
-                                    <span>Share</span>
-                                </div>
+
+                            <div class="mb-4">
+                                <label for="content" class="form-label">Content</label>
+                                <textarea class="form-control" id="content" name="content" rows="6" required></textarea>
                             </div>
-                        </div>
-                        {{end}}
-                        {{end}}
-                    </div>
-                </div>
 
-                <!-- From Your Ponds Section -->
-                <div class="card">
-                    <div class="card-body">
-                        <h2 class="section-title">
-                            <i class="bi bi-water me-2"></i>Ripples from Your Ponds
-                        </h2>
-                        
-                        <div id="posts-container">
-                            {{range $index, $post := .User.Posts}}
-                            <div class="post-card" {{if gt $index 5}}style="display: none;"{{end}}>
-                                <div class="d-flex justify-content-between align-items-start mb-2">
-                                    <div class="pond-tag">
-                                        <i class="bi bi-water me-1"></i>
-                                        <small>{{.PondName}}</small>
-                                    </div>
-                                    <small class="text-muted">Posted by {{.Author}}</small>
-                                </div>
-                                <h3 class="post-title h5">{{.Title}}</h3>
-                                <p class="post-description mb-2">{{.Description}}</p>
-                                <div class="post-interactions">
-                                    <div class="interaction-btn">
-                                        <i class="bi bi-chat-dots"></i>
-                                        <span>{{.Comments}} comments</span>
-                                    </div>
-                                    <div class="interaction-btn">
-                                        <i class="bi bi-heart"></i>
-                                        <span>{{.Likes}} likes</span>
-                                    </div>
-                                    <div class="interaction-btn">
-                                        <i class="bi bi-share"></i>
-                                        <span>Share</span>
-                                    </div>
-                                </div>
+                            <div class="mb-4">
+                                <label for="pond" class="form-label">Select Pond</label>
+                                <select class="form-select pond-select" id="pond" name="pond" required>
+                                    {{range .User.Ponds}}
+                                        <option value="{{.Name}}">{{.Name}}</option>
+                                    {{end}}
+                                </select>
                             </div>
-                            {{end}}
-                        </div>
 
-                        {{if gt (len .User.Posts) 6}}
-                        <button id="load-more" class="btn btn-ribbit w-100 mt-3" onclick="loadMorePosts()">
-                            <span class="spinner-border spinner-border-sm me-2 d-none" role="status" aria-hidden="true"></span>
-                            <i class="bi bi-arrow-down-circle me-2"></i>See More Ripples
-                        </button>
-                        {{end}}
-                    </div>
-                </div>
-            </div>
+                            <div class="preview-card d-none" id="preview" style="border: 2px dashed var(--ribbit-accent); padding: 1.5rem; margin-top: 2rem; border-radius: 15px;">
+                                <h3 class="preview-title h5 mb-3" id="previewTitle"></h3>
+                                <p class="preview-content mb-0" id="previewContent"></p>
+                            </div>
 
-            <!-- Sidebar -->
-            <div class="col-md-4">
-                <!-- User Stats -->
-                <div class="card">
-                    <div class="card-body">
-                        <h3 class="section-title h5">
-                            <i class="bi bi-collection me-2"></i>Your Ponds
-                            <span class="pond-count">({{len .User.Ponds}})</span>
-                        </h3>
-                        {{range .User.Ponds}}
-                        <div class="pond-card">
-                            <h4 class="h6 mb-1">{{.Name}}</h4>
-                            <p class="small mb-2">{{.Description}}</p>
-                            <small class="text-muted"><i class="bi bi-people me-1"></i>{{.Members}} members</small>
-                        </div>
-                        {{end}}
-                        <button class="btn btn-ribbit w-100 mt-3">
-                            <i class="bi bi-plus-circle me-2"></i>Discover More Ponds
-                        </button>
+                            <div class="d-flex justify-content-between align-items-center mt-4">
+                                <button type="button" class="btn btn-secondary" id="previewBtn">
+                                    <i class="bi bi-eye me-2"></i>Preview
+                                </button>
+                                <button type="submit" class="btn btn-ribbit">
+                                    <i class="bi bi-send me-2"></i>Submit Post
+                                </button>
+                            </div>
+                        </form>
                     </div>
                 </div>
             </div>
         </div>
     </main>
 
-    <footer class="mt-4">
-        <div class="container py-3">
-            <div class="row">
-                <div class="col-md-4 text-center text-md-start">
-                    <h5><i class="bi bi-flower1 me-2"></i>Ribbit</h5>
-                    <p class="mb-0">Join the conversation</p>
-                </div>
-                <div class="col-md-4 text-center">
-                    <h5>Follow Us</h5>
-                    <div class="social-icons">
-                        <i class="bi bi-twitter mx-2"></i>
-                        <i class="bi bi-facebook mx-2"></i>
-                        <i class="bi bi-instagram mx-2"></i>
-                    </div>
-                </div>
-                <div class="col-md-4 text-center text-md-end">
-                    <p class="mb-0">&copy; 2023 Ribbit. All rights reserved.</p>
-                </div>
-            </div>
-        </div>
-    </footer>
-
-    <!-- Add scroll to top button -->
-    <button id="scroll-top" class="btn btn-ribbit position-fixed bottom-0 end-0 m-3 d-none" 
-            style="z-index: 1000; opacity: 0.9;" 
-            onclick="window.scrollTo({top: 0, behavior: 'smooth'})">
-        <i class="bi bi-arrow-up-circle"></i>
-    </button>
-
-    <!-- Add toast container -->
-    <div class="toast-container">
-        <div class="toast ribbit-toast" role="alert" aria-live="assertive" aria-atomic="true">
-            <div class="toast-header">
-                <i class="bi bi-info-circle me-2"></i>
-                <strong class="me-auto">Ribbit</strong>
-                <small>Just now</small>
-                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
-            </div>
-            <div class="toast-body">
-                Your search results have been sorted by engagement.
-            </div>
-        </div>
-    </div>
-
     <script>
-    let currentlyShown = 6;
-    const postsPerLoad = 3;
-    const totalPosts = {{len .User.Posts}};
+        // Preview functionality
+        const previewBtn = document.getElementById('previewBtn');
+        const previewCard = document.getElementById('preview');
+        const previewTitle = document.getElementById('previewTitle');
+        const previewContent = document.getElementById('previewContent');
 
-    function loadMorePosts() {
-        const button = document.getElementById('load-more');
-        const spinner = button.querySelector('.spinner-border');
-        const posts = document.querySelectorAll('#posts-container .post-card');
-        
-        // Show loading state
-        spinner.classList.remove('d-none');
-        button.disabled = true;
-        
-        // Simulate loading delay for better UX
-        setTimeout(() => {
-            let shown = 0;
-            posts.forEach((post, index) => {
-                if (index >= currentlyShown && shown < postsPerLoad) {
-                    post.style.display = 'block';
-                    post.style.animation = 'slideIn 0.3s ease-out forwards';
-                    shown++;
-                }
-            });
-            
-            currentlyShown += shown;
-            
-            // Hide button if no more posts
-            if (currentlyShown >= posts.length) {
-                button.style.display = 'none';
+        previewBtn.addEventListener('click', () => {
+            const title = document.getElementById('title').value;
+            const content = document.getElementById('content').value;
+
+            if (title || content) {
+                previewTitle.textContent = title;
+                previewContent.textContent = content;
+                previewCard.classList.remove('d-none');
+            } else {
+                alert('Please enter a title and content to preview');
             }
-            
-            // Reset button state
-            spinner.classList.add('d-none');
-            button.disabled = false;
-        }, 500);
-    }
-
-    // Add scroll to top functionality
-    window.onscroll = function() {
-        const scrollBtn = document.getElementById('scroll-top');
-        if (document.body.scrollTop > 300 || document.documentElement.scrollTop > 300) {
-            scrollBtn.classList.remove('d-none');
-        } else {
-            scrollBtn.classList.add('d-none');
-        }
-    };
-
-    // Initialize tooltips and toasts
-    document.addEventListener('DOMContentLoaded', function() {
-        // Initialize tooltips
-        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-        tooltipTriggerList.map(function (tooltipTriggerEl) {
-            return new bootstrap.Tooltip(tooltipTriggerEl);
         });
 
-        // Initialize toasts
-        var toastElList = [].slice.call(document.querySelectorAll('.toast'));
-        toastElList.map(function (toastEl) {
-            return new bootstrap.Toast(toastEl, {
-                autohide: true,
-                delay: 3000
-            });
+        // Live preview updates
+        document.getElementById('title').addEventListener('input', (e) => {
+            if (!previewCard.classList.contains('d-none')) {
+                previewTitle.textContent = e.target.value;
+            }
         });
-    });
 
-    // Show loading state for search
-    document.querySelector('form[action="/search"]').addEventListener('submit', function(e) {
-        const button = this.querySelector('button');
-        const icon = button.querySelector('i');
-        button.disabled = true;
-        icon.className = 'spinner-border spinner-border-sm';
-        
-        // Show toast after search
-        setTimeout(() => {
-            const toast = document.querySelector('.toast');
-            const bsToast = new bootstrap.Toast(toast);
-            bsToast.show();
-        }, 1000);
-    });
-
-    // Add keyboard navigation
-    document.addEventListener('keydown', function(e) {
-        if (e.ctrlKey && e.key === 'k') {
-            e.preventDefault();
-            document.querySelector('.search-input').focus();
-        }
-    });
+        document.getElementById('content').addEventListener('input', (e) => {
+            if (!previewCard.classList.contains('d-none')) {
+                previewContent.textContent = e.target.value;
+            }
+        });
     </script>
 </body>
-</html> 
+</html>

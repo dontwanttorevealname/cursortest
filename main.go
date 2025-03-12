@@ -7,6 +7,7 @@ import (
     "ribbit/internal/templates"
     "strings"
     "github.com/joho/godotenv"
+    "ribbit/internal/handlers"
 )
 
 // PageData represents the data we'll pass to our template
@@ -37,6 +38,8 @@ func main() {
     http.HandleFunc("/trending", handleTrending)
     http.HandleFunc("/profile", handleProfile)
     http.HandleFunc("/search", handleSearch)
+    http.HandleFunc("/create-post", handleCreatePost)
+    http.HandleFunc("/submit-post", handlers.HandleCreatePost)
 
     // Start server
     log.Println("Server starting on http://localhost:8080")
@@ -267,6 +270,39 @@ func handleSearch(w http.ResponseWriter, r *http.Request) {
 
     // Parse and execute template
     tmpl, err := template.ParseFiles("templates/search.html")
+    if err != nil {
+        http.Error(w, err.Error(), http.StatusInternalServerError)
+        return
+    }
+
+    err = tmpl.Execute(w, data)
+    if err != nil {
+        http.Error(w, err.Error(), http.StatusInternalServerError)
+    }
+}
+
+func handleCreatePost(w http.ResponseWriter, r *http.Request) {
+    // Check if user is logged in
+    cookie, err := r.Cookie("user")
+    if err != nil {
+        http.Redirect(w, r, "/login", http.StatusSeeOther)
+        return
+    }
+
+    // Get user template
+    userTemplate := templates.GetUserTemplate(cookie.Value)
+    if userTemplate == nil {
+        http.Redirect(w, r, "/login", http.StatusSeeOther)
+        return
+    }
+
+    // Prepare data for the template
+    data := PageData{
+        User: userTemplate,
+    }
+
+    // Parse and execute template
+    tmpl, err := template.ParseFiles("templates/create_post.html")
     if err != nil {
         http.Error(w, err.Error(), http.StatusInternalServerError)
         return
