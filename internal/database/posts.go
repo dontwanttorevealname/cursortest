@@ -303,4 +303,46 @@ func GetTrendingPosts(db *sql.DB, limit int) ([]Post, error) {
     }
 
     return posts, nil
+}
+
+// GetPondPosts retrieves all posts for a specific pond
+func GetPondPosts(db *sql.DB, pondName string) ([]Post, error) {
+    query := `
+        SELECT id, title, content, comment_count, like_count, 
+               pond_name, author_username, created_at
+        FROM ripples
+        WHERE pond_name = ?
+        ORDER BY created_at DESC
+    `
+    
+    rows, err := db.Query(query, pondName)
+    if err != nil {
+        return nil, err
+    }
+    defer rows.Close()
+
+    var posts []Post
+    for rows.Next() {
+        var post Post
+        err := rows.Scan(
+            &post.ID,
+            &post.Title,
+            &post.Description,  // Note: This maps to 'content' in the database
+            &post.Comments,
+            &post.Likes,
+            &post.PondName,
+            &post.Author,
+            &post.CreatedAt,
+        )
+        if err != nil {
+            return nil, err
+        }
+        posts = append(posts, post)
+    }
+
+    if err = rows.Err(); err != nil {
+        return nil, err
+    }
+
+    return posts, nil
 } 

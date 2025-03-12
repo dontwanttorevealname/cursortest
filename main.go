@@ -9,6 +9,7 @@ import (
     "github.com/joho/godotenv"
     "ribbit/internal/handlers"
     "ribbit/internal/database"
+    "github.com/go-chi/chi"
 )
 
 // PageData represents the data we'll pass to our template
@@ -33,27 +34,32 @@ func main() {
     fs := http.FileServer(http.Dir("static"))
     http.Handle("/static/", http.StripPrefix("/static/", fs))
 
+    // Create a new router
+    r := chi.NewRouter()
+
     // Handle routes
-    http.HandleFunc("/", handleHome)
-    http.HandleFunc("/login", handleLoginSubmit)
-    http.HandleFunc("/logout", handleLogout)
-    http.HandleFunc("/trending", handleTrending)
-    http.HandleFunc("/profile", handleProfile)
-    http.HandleFunc("/search", handleSearch)
-    http.HandleFunc("/create-post", handleCreatePost)
-    http.HandleFunc("/submit-post", handlers.HandleCreatePost)
-    http.HandleFunc("/api/posts/", func(w http.ResponseWriter, r *http.Request) {
+    r.HandleFunc("/", handleHome)
+    r.HandleFunc("/login", handleLoginSubmit)
+    r.HandleFunc("/logout", handleLogout)
+    r.HandleFunc("/trending", handleTrending)
+    r.HandleFunc("/profile", handleProfile)
+    r.HandleFunc("/search", handleSearch)
+    r.HandleFunc("/create-post", handleCreatePost)
+    r.HandleFunc("/submit-post", handlers.HandleCreatePost)
+    r.HandleFunc("/api/posts/", func(w http.ResponseWriter, r *http.Request) {
         if r.Method == http.MethodDelete {
             handlers.DeletePost(w, r)
             return
         }
         http.NotFound(w, r)
     })
-    http.HandleFunc("/pond", handlers.HandlePondPage)
+    r.Get("/pond", handlers.HandlePondPage)
+    r.Post("/api/ponds/join", handlers.JoinPond)
+    r.Post("/api/ponds/leave", handlers.LeavePond)
 
     // Start server
     log.Println("Server starting on http://localhost:8080")
-    log.Fatal(http.ListenAndServe(":8080", nil))
+    log.Fatal(http.ListenAndServe(":8080", r))
 }
 
 func handleHome(w http.ResponseWriter, r *http.Request) {
