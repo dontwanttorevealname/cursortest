@@ -25,6 +25,7 @@ type UserTemplate struct {
 }
 
 type Post struct {
+    ID          int64
     Title       string
     Description string
     Comments    int
@@ -142,6 +143,7 @@ func getRandomPostsForUser(db *sql.DB, userPonds []Pond, excludeAuthor string) (
 // Convert database.Post to templates.Post
 func convertDatabasePost(dbPost database.Post) Post {
     return Post{
+        ID:          dbPost.ID,
         Title:       dbPost.Title,
         Description: dbPost.Description,
         Comments:    dbPost.Comments,

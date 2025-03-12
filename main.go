@@ -40,6 +40,13 @@ func main() {
     http.HandleFunc("/search", handleSearch)
     http.HandleFunc("/create-post", handleCreatePost)
     http.HandleFunc("/submit-post", handlers.HandleCreatePost)
+    http.HandleFunc("/api/posts/", func(w http.ResponseWriter, r *http.Request) {
+        if r.Method == http.MethodDelete {
+            handlers.DeletePost(w, r)
+            return
+        }
+        http.NotFound(w, r)
+    })
 
     // Start server
     log.Println("Server starting on http://localhost:8080")

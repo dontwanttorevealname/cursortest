@@ -3,6 +3,7 @@ package handlers
 import (
 	"math/rand"
 	"net/http"
+	"strings"
 	"time"
 	"ribbit/internal/database"
 )
@@ -112,4 +113,59 @@ func HandleCreatePost(w http.ResponseWriter, r *http.Request) {
 
 	// Redirect to home page after successful post creation
 	http.Redirect(w, r, "/", http.StatusSeeOther)
+}
+
+// DeletePost handles the deletion of a post
+func DeletePost(w http.ResponseWriter, r *http.Request) {
+	// Only allow DELETE method
+	if r.Method != http.MethodDelete {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	// Get post ID from URL
+	parts := strings.Split(r.URL.Path, "/")
+	if len(parts) < 4 {
+		http.Error(w, "Invalid request", http.StatusBadRequest)
+		return
+	}
+	postID := parts[len(parts)-1]
+
+	// Get user from cookie
+	cookie, err := r.Cookie("user")
+	if err != nil {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	// Get database connection
+	db, err := database.GetDB()
+	if err != nil {
+		http.Error(w, "Database error", http.StatusInternalServerError)
+		return
+	}
+	defer db.Close()
+
+	// Verify post belongs to user before deleting
+	var authorUsername string
+	err = db.QueryRow("SELECT author_username FROM ripples WHERE id = ?", postID).Scan(&authorUsername)
+	if err != nil {
+		http.Error(w, "Post not found", http.StatusNotFound)
+		return
+	}
+
+	if authorUsername != cookie.Value {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	// Delete the post
+	_, err = db.Exec("DELETE FROM ripples WHERE id = ?", postID)
+	if err != nil {
+		http.Error(w, "Failed to delete post", http.StatusInternalServerError)
+		return
+	}
+
+	// Return success
+	w.WriteHeader(http.StatusOK)
 }
