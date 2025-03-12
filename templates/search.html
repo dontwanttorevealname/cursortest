@@ -180,6 +180,74 @@
             box-shadow: 0 4px 12px rgba(74,102,112,0.15);
             border-left: 4px solid var(--ribbit-accent);
         }
+
+        /* Update tab styling */
+        .nav-tabs .nav-link {
+            color: var(--ribbit-dark) !important;
+            font-weight: 600 !important;
+            border: none;
+            border-bottom: 2px solid transparent;
+            padding: 0.8rem 1.2rem;
+            transition: all 0.3s ease;
+        }
+
+        .nav-tabs .nav-link:hover {
+            color: var(--ribbit-accent) !important;
+        }
+
+        .nav-tabs .nav-link.active {
+            color: var(--ribbit-accent) !important;
+            background-color: var(--ribbit-light) !important;
+            border-bottom: 2px solid var(--ribbit-accent) !important;
+        }
+
+        .nav-tabs .badge {
+            background-color: var(--ribbit-accent) !important;
+            color: white;
+        }
+
+        /* Update tab content area */
+        .tab-content {
+            background-color: var(--ribbit-light);
+            border-radius: 0 0 15px 15px;
+            padding: 1rem;
+        }
+
+        /* Update pond card styling */
+        .pond-card {
+            background-color: var(--ribbit-light);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            transition: all 0.3s ease;
+            border-left: 4px solid var(--ribbit-accent);
+            box-shadow: 0 2px 4px rgba(74,102,112,0.08);
+        }
+
+        .pond-card:hover {
+            transform: translateY(-2px);
+            background-color: var(--ribbit-hover);
+            box-shadow: 0 4px 8px rgba(127,185,166,0.2);
+        }
+
+        .pond-card h3 {
+            color: var(--ribbit-dark);
+            margin-bottom: 1rem;
+        }
+
+        .pond-card .badge {
+            background-color: var(--ribbit-accent);
+            color: white;
+            padding: 0.5rem 1rem;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        .pond-card p {
+            color: var(--ribbit-dark);
+            opacity: 0.9;
+            line-height: 1.5;
+        }
     </style>
 </head>
 <body>
@@ -264,38 +332,83 @@
                                 <small class="text-muted">for "{{.Query}}"</small>
                             {{end}}
                         </h2>
-                        
-                        {{if .SearchResults}}
-                            {{range .SearchResults}}
-                            <div class="post-card">
-                                <div class="d-flex justify-content-between align-items-start mb-2">
-                                    <div class="pond-tag">
-                                        <i class="bi bi-water me-1"></i>
-                                        <small>{{.PondName}}</small>
+
+                        <!-- Add tabs -->
+                        <ul class="nav nav-tabs mb-4" id="searchTabs" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active fw-bold" id="posts-tab" data-bs-toggle="tab" data-bs-target="#posts" type="button" role="tab" aria-controls="posts" aria-selected="true" style="color: var(--ribbit-dark);">
+                                    <i class="bi bi-file-text me-2"></i>Posts
+                                    <span class="badge bg-secondary ms-2">{{len .SearchResults}}</span>
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link fw-bold" id="ponds-tab" data-bs-toggle="tab" data-bs-target="#ponds" type="button" role="tab" aria-controls="ponds" aria-selected="false" style="color: var(--ribbit-dark);">
+                                    <i class="bi bi-water me-2"></i>Ponds
+                                    <span class="badge bg-secondary ms-2">{{len .SearchPonds}}</span>
+                                </button>
+                            </li>
+                        </ul>
+
+                        <!-- Tab content -->
+                        <div class="tab-content" id="searchTabContent">
+                            <!-- Posts tab -->
+                            <div class="tab-pane fade show active" id="posts" role="tabpanel" aria-labelledby="posts-tab">
+                                {{if .SearchResults}}
+                                    {{range .SearchResults}}
+                                    <div class="post-card">
+                                        <div class="d-flex justify-content-between align-items-start mb-2">
+                                            <div class="pond-tag">
+                                                <i class="bi bi-water me-1"></i>
+                                                <small>{{.PondName}}</small>
+                                            </div>
+                                            <small class="text-muted">Posted by {{.Author}}</small>
+                                        </div>
+                                        <h3 class="post-title h5">{{.Title}}</h3>
+                                        <p class="post-description">{{.Description}}</p>
+                                        <div class="post-interactions">
+                                            <div class="interaction-btn">
+                                                <i class="bi bi-chat-dots me-1"></i>
+                                                <span>{{.Comments}} comments</span>
+                                            </div>
+                                            <div class="interaction-btn ms-3">
+                                                <i class="bi bi-heart me-1"></i>
+                                                <span>{{.Likes}} likes</span>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <small class="text-muted">Posted by {{.Author}}</small>
-                                </div>
-                                <h3 class="post-title h5">{{.Title}}</h3>
-                                <p class="post-description">{{.Description}}</p>
-                                <div class="post-interactions">
-                                    <div class="interaction-btn">
-                                        <i class="bi bi-chat-dots me-1"></i>
-                                        <span>{{.Comments}} comments</span>
+                                    {{end}}
+                                {{else}}
+                                    <div class="no-results">
+                                        <i class="bi bi-emoji-frown" style="font-size: 3rem;"></i>
+                                        <h3 class="h4 mt-3">No posts found</h3>
+                                        <p class="text-muted">Try different keywords or check your spelling</p>
                                     </div>
-                                    <div class="interaction-btn ms-3">
-                                        <i class="bi bi-heart me-1"></i>
-                                        <span>{{.Likes}} likes</span>
-                                    </div>
-                                </div>
+                                {{end}}
                             </div>
-                            {{end}}
-                        {{else}}
-                            <div class="no-results">
-                                <i class="bi bi-emoji-frown" style="font-size: 3rem;"></i>
-                                <h3 class="h4 mt-3">No results found</h3>
-                                <p class="text-muted">Try different keywords or check your spelling</p>
+
+                            <!-- Ponds tab -->
+                            <div class="tab-pane fade" id="ponds" role="tabpanel" aria-labelledby="ponds-tab">
+                                {{if .SearchPonds}}
+                                    {{range .SearchPonds}}
+                                    <div class="pond-card">
+                                        <a href="/pond?name={{.Name}}" class="text-decoration-none">
+                                            <h4 class="h6 mb-1">{{.Name}}</h4>
+                                        </a>
+                                        <p class="small mb-2">{{.Description}}</p>
+                                        <small class="text-muted">
+                                            <i class="bi bi-people me-1"></i>{{.Members}} members
+                                        </small>
+                                    </div>
+                                    {{end}}
+                                {{else}}
+                                    <div class="no-results">
+                                        <i class="bi bi-emoji-frown" style="font-size: 3rem;"></i>
+                                        <h3 class="h4 mt-3">No ponds found</h3>
+                                        <p class="text-muted">Try different keywords or check your spelling</p>
+                                    </div>
+                                {{end}}
                             </div>
-                        {{end}}
+                        </div>
                     </div>
                 </div>
             </div>

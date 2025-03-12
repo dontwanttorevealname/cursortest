@@ -260,4 +260,47 @@ func GetRandomPostsFromUserPonds(db *sql.DB, userID int64, postsPerPond int) ([]
     }
 
     return allPosts, nil
+}
+
+// GetTrendingPosts returns the top N trending posts, excluding official posts and Ribbit Admin posts
+func GetTrendingPosts(db *sql.DB, limit int) ([]Post, error) {
+    query := `
+        SELECT id, title, content, like_count, comment_count, author_username, pond_name, created_at
+        FROM ripples 
+        WHERE pond_name != 'OFFICIAL' 
+        AND author_username != 'Ribbit Admin'
+        ORDER BY (like_count + comment_count) DESC, created_at DESC
+        LIMIT ?
+    `
+    
+    rows, err := db.Query(query, limit)
+    if err != nil {
+        return nil, err
+    }
+    defer rows.Close()
+
+    var posts []Post
+    for rows.Next() {
+        var post Post
+        err := rows.Scan(
+            &post.ID,
+            &post.Title,
+            &post.Description,
+            &post.Likes,
+            &post.Comments,
+            &post.Author,
+            &post.PondName,
+            &post.CreatedAt,
+        )
+        if err != nil {
+            return nil, err
+        }
+        posts = append(posts, post)
+    }
+
+    if err = rows.Err(); err != nil {
+        return nil, err
+    }
+
+    return posts, nil
 } 

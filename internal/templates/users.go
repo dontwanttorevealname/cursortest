@@ -11,6 +11,7 @@ import (
     "ribbit/internal/database"
     "database/sql"
     "strings"
+    "html/template"
 )
 
 type UserTemplate struct {
@@ -32,7 +33,8 @@ type Post struct {
     Likes       int
     PondName    string
     Author      string
-    SecondsAgo  int
+    CreatedAt   time.Time
+    TimeAgo     string    // Add this field
 }
 
 type Pond struct {
@@ -150,12 +152,13 @@ func convertDatabasePost(dbPost database.Post) Post {
         Likes:       dbPost.Likes,
         PondName:    dbPost.PondName,
         Author:      dbPost.Author,
-        SecondsAgo:  int(time.Since(dbPost.CreatedAt).Seconds()),
+        CreatedAt:   dbPost.CreatedAt,
+        TimeAgo:     formatTimeAgo(dbPost.CreatedAt),
     }
 }
 
-// Convert database.Pond to templates.Pond
-func convertDatabasePond(dbPond database.Pond) Pond {
+// ConvertDatabasePond converts a database.Pond to a templates.Pond
+func ConvertDatabasePond(dbPond database.Pond) Pond {
     return Pond{
         Name:        dbPond.Name,
         Description: dbPond.Description,
@@ -176,7 +179,7 @@ func convertDatabasePosts(dbPosts []database.Post) []Post {
 func convertDatabasePonds(dbPonds []database.Pond) []Pond {
     ponds := make([]Pond, len(dbPonds))
     for i, dbPond := range dbPonds {
-        ponds[i] = convertDatabasePond(dbPond)
+        ponds[i] = ConvertDatabasePond(dbPond)
     }
     return ponds
 }
@@ -199,7 +202,14 @@ func (u *UserTemplate) GetOfficialPosts() []Post {
     return convertDatabasePosts(dbPosts)
 }
 
-// Update GetUserTemplate to populate both official and pond posts
+// Add these new functions
+var templateFuncs = template.FuncMap{
+    "add": func(a, b int) int {
+        return a + b
+    },
+}
+
+// Update GetUserTemplate to use the function map
 func GetUserTemplate(username string) *UserTemplate {
     db, err := database.GetDB()
     if err != nil {
@@ -231,8 +241,8 @@ func GetUserTemplate(username string) *UserTemplate {
         pondPosts = []database.Post{} // Use empty slice instead of nil
     }
 
-    // Get user's ponds
-    ponds, err := database.GetUserPonds(db, user.ID)
+    // Get user's ponds - convert ID to string
+    ponds, err := database.GetUserPonds(db, username) // Changed from user.ID to username
     if err != nil {
         log.Printf("Error getting user ponds: %v", err)
         ponds = []database.Pond{} // Use empty slice instead of nil
@@ -259,12 +269,10 @@ func formatMemberCount(count int) string {
 }
 
 // GetTrendingPosts returns the top 8 posts by engagement (likes + comments)
-func GetTrendingPosts() ([]Post, error) {
-    db, err := database.GetDB()
-    if err != nil {
-        return nil, err
+func GetTrendingPosts(db *sql.DB) ([]Post, error) {
+    if db == nil {
+        return nil, fmt.Errorf("database connection is nil")
     }
-    defer db.Close()
 
     rows, err := db.Query(`
         SELECT id, title, content, comment_count, like_count, pond_name, author_username, created_at
@@ -298,45 +306,44 @@ func GetTrendingPosts() ([]Post, error) {
     return posts, nil
 }
 
-// Add this helper function
-func formatTimeAgo(secondsAgo int) string {
-    minutes := secondsAgo / 60
-    hours := minutes / 60
-    days := hours / 24
-    weeks := days / 7
-    months := days / 30
+// Add the formatTimeAgo function
+func formatTimeAgo(t time.Time) string {
+    duration := time.Since(t)
+    hours := duration.Hours()
 
-    if months > 0 {
+    // Less than 24 hours
+    if hours < 24 {
+        if hours < 1 {
+            return "just now"
+        }
+        return fmt.Sprintf("%d hours ago", int(hours))
+    }
+
+    days := int(hours / 24)
+    
+    // Less than 30 days
+    if days < 30 {
+        if days == 1 {
+            return "yesterday"
+        }
+        return fmt.Sprintf("%d days ago", days)
+    }
+    
+    // Less than 365 days
+    if days < 365 {
+        months := days / 30
         if months == 1 {
             return "1 month ago"
         }
         return fmt.Sprintf("%d months ago", months)
     }
-    if weeks > 0 {
-        if weeks == 1 {
-            return "1 week ago"
-        }
-        return fmt.Sprintf("%d weeks ago", weeks)
+    
+    // Years
+    years := days / 365
+    if years == 1 {
+        return "1 year ago"
     }
-    if days > 0 {
-        if days == 1 {
-            return "1 day ago"
-        }
-        return fmt.Sprintf("%d days ago", days)
-    }
-    if hours > 0 {
-        if hours == 1 {
-            return "1 hour ago"
-        }
-        return fmt.Sprintf("%d hours ago", hours)
-    }
-    if minutes > 0 {
-        if minutes == 1 {
-            return "1 minute ago"
-        }
-        return fmt.Sprintf("%d minutes ago", minutes)
-    }
-    return "just now"
+    return fmt.Sprintf("%d years ago", years)
 }
 
 // Replace GetAllPosts with a database query

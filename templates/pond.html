@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ribbit - Trending</title>
+    <title>Ribbit - {{.Pond.Name}}</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
@@ -52,6 +52,21 @@
             box-shadow: 0 6px 12px rgba(74,102,112,0.12);
         }
         
+        .post-card {
+            background-color: var(--ribbit-light);
+            border-bottom: 2px solid var(--ribbit-accent);
+            padding: 1.2rem;
+            border-radius: 15px;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .post-card:hover {
+            background-color: var(--ribbit-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(127,185,166,0.15);
+        }
+        
         .section-title {
             color: var(--ribbit-dark);
             border-bottom: 2px solid var(--ribbit-secondary);
@@ -59,91 +74,70 @@
             margin-bottom: 1.5rem;
         }
 
-        .trending-number {
-            font-size: 2rem;
-            font-weight: bold;
-            color: var(--ribbit-accent);
-            width: 40px;
-            text-align: center;
-            font-family: 'Arial', sans-serif;
-            text-shadow: 1px 1px 2px rgba(74,102,112,0.1);
+        .create-post-card {
+            background-color: var(--ribbit-light);
+            border-radius: 20px;
+            padding: 1.2rem;
+            margin-bottom: 2rem;
+            border: 2px dashed var(--ribbit-accent);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: var(--ribbit-dark);
         }
-        
-        .trending-post-card {
-            display: flex;
-            gap: 1rem;
-            align-items: start;
+
+        .create-post-card:hover {
+            background-color: var(--ribbit-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(127,185,166,0.15);
+        }
+
+        .pond-card {
             background-color: var(--ribbit-light);
             border-radius: 15px;
             padding: 1.2rem;
             margin-bottom: 1rem;
             transition: all 0.3s ease;
             border-left: 4px solid var(--ribbit-accent);
+            box-shadow: 0 2px 4px rgba(74,102,112,0.08);
         }
-        
-        .trending-post-card:hover {
+
+        .pond-card:hover {
             transform: translateY(-2px);
             background-color: var(--ribbit-hover);
-            box-shadow: 0 4px 12px rgba(127,185,166,0.15);
+            box-shadow: 0 4px 8px rgba(127,185,166,0.2);
         }
-        
-        .engagement-score {
+
+        .stats-card {
             background: linear-gradient(45deg, var(--ribbit-dark), var(--ribbit-accent));
             color: white;
-            padding: 0.3rem 0.8rem;
-            border-radius: 15px;
-            font-size: 0.9rem;
-            box-shadow: 0 2px 4px rgba(74,102,112,0.1);
+            border-radius: 20px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 12px rgba(74,102,112,0.15);
         }
-        
-        .pond-badge {
-            background-color: var(--ribbit-gray);
-            color: var(--ribbit-dark);
-            padding: 0.3rem 0.8rem;
-            border-radius: 15px;
-            font-size: 0.9rem;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.3rem;
+
+        .btn-ribbit {
+            background: linear-gradient(45deg, var(--ribbit-dark), var(--ribbit-accent));
+            color: white;
+            border: none;
+            padding: 0.8rem;
+            border-radius: 25px;
             transition: all 0.3s ease;
         }
 
-        .pond-badge:hover {
-            background-color: var(--ribbit-secondary);
-            transform: translateY(-1px);
+        .btn-ribbit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(127,185,166,0.2);
+            color: white;
         }
 
         .post-title {
             color: var(--ribbit-dark);
             transition: color 0.3s ease;
-            margin-top: 0.5rem;
         }
 
         .post-title:hover {
             color: var(--ribbit-accent);
-        }
-
-        .post-description {
-            color: #666;
-            font-size: 0.95rem;
-            line-height: 1.5;
-        }
-
-        .interaction-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            color: var(--ribbit-dark);
-            transition: all 0.3s ease;
-            cursor: pointer;
-            padding: 0.3rem 0.6rem;
-            border-radius: 12px;
-        }
-
-        .interaction-btn:hover {
-            color: var(--ribbit-accent);
-            background-color: var(--ribbit-gray);
-            transform: translateY(-1px);
         }
 
         footer {
@@ -151,7 +145,6 @@
             color: white;
             box-shadow: 0 -2px 8px rgba(74,102,112,0.15);
             margin-top: 2rem;
-            padding: 2rem 0;
         }
 
         .social-icons i {
@@ -166,40 +159,90 @@
             color: var(--ribbit-light) !important;
         }
 
-        /* Animation for trending posts */
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        .post-interactions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 0.8rem;
         }
 
-        .trending-post-card {
-            animation: slideIn 0.3s ease-out forwards;
-            animation-delay: calc(var(--animation-order) * 0.1s);
-            opacity: 0;
+        .interaction-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--ribbit-dark);
+            transition: all 0.3s ease;
+            cursor: pointer;
         }
 
-        /* Responsive adjustments */
-        @media (max-width: 768px) {
-            .trending-number {
-                font-size: 1.5rem;
-                width: 30px;
-            }
+        .interaction-btn:hover {
+            color: var(--ribbit-accent);
+            transform: translateY(-1px);
+        }
 
-            .trending-post-card {
-                padding: 1rem;
-                gap: 0.5rem;
-            }
+        .official-tag {
+            display: inline-flex;
+            align-items: center;
+            color: var(--ribbit-accent);
+            font-weight: 500;
+        }
 
-            .engagement-score {
-                font-size: 0.8rem;
-                padding: 0.2rem 0.6rem;
-            }
+        .official-tag i {
+            color: var(--ribbit-accent);
+        }
+
+        .pond-tag {
+            display: inline-flex;
+            align-items: center;
+            color: var(--ribbit-dark);
+            font-weight: 500;
+        }
+
+        .pond-tag i {
+            font-size: 0.5rem;
+            color: var(--ribbit-accent);
+        }
+
+        .post-card {
+            border-left: 4px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .post-card:hover {
+            border-left-color: var(--ribbit-accent);
+        }
+
+        /* Make the Ribbit News section slightly more prominent */
+        .card:first-of-type .section-title {
+            color: var(--ribbit-accent);
+        }
+
+        .card:first-of-type .post-card {
+            background-color: var(--ribbit-light);
+            border-left: 4px solid var(--ribbit-accent);
+        }
+
+        .card:first-of-type .post-card:hover {
+            background-color: var(--ribbit-hover);
+        }
+
+        .pond-count {
+            color: var(--ribbit-accent);
+            font-size: 0.9em;
+            font-weight: normal;
+        }
+
+        .nav-profile-icon {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 0.5rem;
+        }
+
+        .nav-profile-icon i {
+            font-size: 1rem;
         }
 
         /* Add avatar background colors */
@@ -231,20 +274,70 @@
             background-color: #e1f5fe;  /* Light cyan */
         }
 
-        .nav-profile-icon {
-            width: 28px;
-            height: 28px;
-            border-radius: 50%;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            margin-right: 0.5rem;
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .btn-ribbit:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+        
+        .spinner-border {
+            width: 1rem;
+            height: 1rem;
+            border-width: 0.15em;
+        }
+        
+        .post-card {
+            animation: slideIn 0.3s ease-out forwards;
         }
 
-        .nav-profile-icon i {
-            font-size: 1rem;
+        [data-bs-toggle="tooltip"] {
+            cursor: pointer;
         }
 
+        /* Notification styles */
+        .dropdown-menu {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 4px 12px rgba(74,102,112,0.15);
+            padding: 0.5rem;
+            min-width: 280px;
+        }
+
+        .dropdown-item {
+            border-radius: 10px;
+            padding: 0.75rem 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .dropdown-item:hover {
+            background-color: var(--ribbit-hover);
+            transform: translateX(5px);
+        }
+
+        /* Loading skeleton animation */
+        @keyframes loading {
+            0% { background-position: -200px 0 }
+            100% { background-position: 200px 0 }
+        }
+
+        .skeleton {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200px 100%;
+            animation: loading 1.5s infinite;
+            border-radius: 4px;
+        }
+
+        /* Toast notification */
         .toast-container {
             position: fixed;
             bottom: 20px;
@@ -257,6 +350,42 @@
             border-radius: 15px;
             box-shadow: 0 4px 12px rgba(74,102,112,0.15);
             border-left: 4px solid var(--ribbit-accent);
+        }
+
+        /* Additional pond-specific styles */
+        .pond-header {
+            background: linear-gradient(45deg, var(--ribbit-dark), var(--ribbit-accent));
+            color: white;
+            padding: 2rem;
+            border-radius: 20px;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 12px rgba(74,102,112,0.15);
+        }
+
+        .pond-stats {
+            display: flex;
+            gap: 2rem;
+            margin-top: 1rem;
+        }
+
+        .pond-stat {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .join-pond-btn {
+            background-color: var(--ribbit-light);
+            color: var(--ribbit-dark);
+            border: 2px solid var(--ribbit-dark);
+            padding: 0.5rem 1.5rem;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+        }
+
+        .join-pond-btn:hover {
+            background-color: var(--ribbit-dark);
+            color: var(--ribbit-light);
         }
     </style>
 </head>
@@ -284,8 +413,8 @@
                 </form>
 
                 <ul class="navbar-nav ms-auto">
-                    <li class="nav-item"><a href="/" class="nav-link"><i class="bi bi-house-door-fill me-1"></i>Home</a></li>
-                    <li class="nav-item"><a href="/trending" class="nav-link active"><i class="bi bi-fire me-1"></i>Trending</a></li>
+                    <li class="nav-item"><a href="/" class="nav-link active"><i class="bi bi-house-door-fill me-1"></i>Home</a></li>
+                    <li class="nav-item"><a href="/trending" class="nav-link"><i class="bi bi-fire me-1"></i>Trending</a></li>
                     <li class="nav-item"><a href="#" class="nav-link"><i class="bi bi-bookmark-fill me-1"></i>Saved</a></li>
                     <li class="nav-item">
                         <a href="/profile" class="nav-link">
@@ -328,42 +457,49 @@
             </div>
         </nav>
     </header>
-
     <main class="container py-4">
-        <div class="row justify-content-center">
-            <div class="col-md-8">
+        <div class="row">
+            <div class="col-12">
+                <!-- Pond Header -->
+                <div class="pond-header">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <h1 class="h2">{{.Pond.Name}}</h1>
+                            <p class="mb-0">{{.Pond.Description}}</p>
+                            <div class="pond-stats">
+                                <div class="pond-stat">
+                                    <i class="bi bi-people-fill"></i>
+                                    <span>{{.Pond.MemberCount}} members</span>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="join-pond-btn">
+                            <i class="bi bi-plus-circle me-2"></i>Join Pond
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Posts Section -->
                 <div class="card">
                     <div class="card-body">
                         <h2 class="section-title">
-                            <i class="bi bi-fire me-2"></i>Top 8 Trending Across Ponds
+                            <i class="bi bi-water me-2"></i>Recent Posts
                         </h2>
-                        
-                        {{range $index, $post := .TrendingPosts}}
-                        <div class="trending-post-card" style="--animation-order: {{$index}}">
-                            <div class="trending-number">#{{add $index 1}}</div>
-                            <div class="flex-grow-1">
-                                <div class="d-flex justify-content-between align-items-start mb-2">
-                                    <div class="pond-badge">
-                                        <i class="bi bi-water"></i>
-                                        <a href="/pond?name={{.PondName}}" class="text-decoration-none" style="color: inherit;">
-                                            {{.PondName}}
-                                        </a>
-                                    </div>
+                        {{range .Posts}}
+                        <div class="post-card">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <h3 class="h5 mb-0">{{.Title}}</h3>
+                                <small class="text-muted">{{.TimeAgo}}</small>
+                            </div>
+                            <p class="mb-2">{{.Description}}</p>
+                            <div class="d-flex gap-3">
+                                <div class="interaction-btn">
+                                    <i class="bi bi-heart"></i>
+                                    <span>{{.Likes}} likes</span>
                                 </div>
-                                <h3 class="post-title h5">{{.Title}}</h3>
-                                <p class="post-description mb-2">{{.Description}}</p>
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <small class="text-muted">Posted by {{.Author}}</small>
-                                    <div class="post-interactions">
-                                        <div class="interaction-btn">
-                                            <i class="bi bi-chat-dots"></i>
-                                            <span>{{.Comments}}</span>
-                                        </div>
-                                        <div class="interaction-btn ms-3">
-                                            <i class="bi bi-heart"></i>
-                                            <span>{{.Likes}}</span>
-                                        </div>
-                                    </div>
+                                <div class="interaction-btn">
+                                    <i class="bi bi-chat"></i>
+                                    <span>{{.Comments}} comments</span>
                                 </div>
                             </div>
                         </div>
@@ -374,8 +510,8 @@
         </div>
     </main>
 
-    <footer>
-        <div class="container">
+    <footer class="mt-4">
+        <div class="container py-3">
             <div class="row">
                 <div class="col-md-4 text-center text-md-start">
                     <h5><i class="bi bi-flower1 me-2"></i>Ribbit</h5>
@@ -395,51 +531,5 @@
             </div>
         </div>
     </footer>
-
-    <!-- Add toast container before closing body tag -->
-    <div class="toast-container">
-        <div class="toast ribbit-toast" role="alert" aria-live="assertive" aria-atomic="true">
-            <div class="toast-body">
-                <i class="bi bi-info-circle me-2"></i>
-                Searching through the pond...
-            </div>
-        </div>
-    </div>
-
-    <script>
-        // Initialize toasts
-        document.addEventListener('DOMContentLoaded', function() {
-            var toastElList = [].slice.call(document.querySelectorAll('.toast'));
-            toastElList.map(function (toastEl) {
-                return new bootstrap.Toast(toastEl, {
-                    autohide: true,
-                    delay: 3000
-                });
-            });
-        });
-
-        // Show loading state for search
-        document.querySelector('form[action="/search"]').addEventListener('submit', function(e) {
-            const button = this.querySelector('button');
-            const icon = button.querySelector('i');
-            button.disabled = true;
-            icon.className = 'spinner-border spinner-border-sm';
-            
-            // Show toast after search
-            setTimeout(() => {
-                const toast = document.querySelector('.toast');
-                const bsToast = new bootstrap.Toast(toast);
-                bsToast.show();
-            }, 1000);
-        });
-
-        // Add keyboard navigation
-        document.addEventListener('keydown', function(e) {
-            if (e.ctrlKey && e.key === 'k') {
-                e.preventDefault();
-                document.querySelector('.search-input').focus();
-            }
-        });
-    </script>
 </body>
-</html> 
+</html>

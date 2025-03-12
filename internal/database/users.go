@@ -113,29 +113,3 @@ func ValidateUserCredentials(db *sql.DB, username, password string) bool {
     return password == storedPassword
 }
 
-// GetUserPonds retrieves all ponds that a user is a member of
-func GetUserPonds(db *sql.DB, userID int64) ([]Pond, error) {
-    rows, err := db.Query(`
-        SELECT p.name, p.description, p.member_count 
-        FROM ponds p 
-        JOIN user_ponds up ON p.id = up.pond_id 
-        WHERE up.user_id = ?`, userID)
-    if err != nil {
-        return nil, err
-    }
-    defer rows.Close()
-
-    var ponds []Pond
-    for rows.Next() {
-        var pond Pond
-        var memberCount int
-        err := rows.Scan(&pond.Name, &pond.Description, &memberCount)
-        if err != nil {
-            return nil, err
-        }
-        pond.MemberCount = memberCount
-        ponds = append(ponds, pond)
-    }
-    return ponds, nil
-}
-

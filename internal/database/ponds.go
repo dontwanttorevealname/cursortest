@@ -91,4 +91,75 @@ func GetTrendingPonds(db *sql.DB, limit int) ([]Pond, error) {
         ponds = append(ponds, pond)
     }
     return ponds, nil
+}
+
+// GetUserPonds gets all ponds a user is a member of
+func GetUserPonds(db *sql.DB, username string) ([]Pond, error) {
+    query := `
+        SELECT p.id, p.name, p.description, p.member_count
+        FROM ponds p
+        JOIN user_ponds up ON p.id = up.pond_id
+        JOIN users u ON up.user_id = u.id
+        WHERE u.username = ?
+    `
+    
+    rows, err := db.Query(query, username)
+    if err != nil {
+        return nil, err
+    }
+    defer rows.Close()
+
+    var ponds []Pond
+    for rows.Next() {
+        var pond Pond
+        err := rows.Scan(
+            &pond.ID,
+            &pond.Name,
+            &pond.Description,
+            &pond.MemberCount,
+        )
+        if err != nil {
+            return nil, err
+        }
+        ponds = append(ponds, pond)
+    }
+
+    return ponds, nil
+}
+
+// GetPosts gets all posts ordered by creation date
+func GetPosts(db *sql.DB) ([]Post, error) {
+    query := `
+        SELECT id, title, content, comment_count, like_count, 
+               pond_name, author_username, created_at
+        FROM ripples
+        ORDER BY created_at DESC
+    `
+    
+    rows, err := db.Query(query)
+    if err != nil {
+        return nil, err
+    }
+    defer rows.Close()
+
+    var posts []Post
+    for rows.Next() {
+        var post Post
+        err := rows.Scan(
+            &post.ID,
+            &post.Title,
+            &post.Description,
+            &post.Comments,
+            &post.Likes,
+            &post.PondName,
+            &post.Author,
+            &post.CreatedAt,
+        )
+        if err != nil {
+            return nil, err
+        }
+        posts = append(posts, post)
+    }
+
+    return posts, nil
 } 

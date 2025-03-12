@@ -8,6 +8,7 @@ import (
     "strings"
     "github.com/joho/godotenv"
     "ribbit/internal/handlers"
+    "ribbit/internal/database"
 )
 
 // PageData represents the data we'll pass to our template
@@ -17,6 +18,7 @@ type PageData struct {
     TrendingPosts []templates.Post
     AllPosts      []templates.Post
     SearchResults []templates.Post
+    SearchPonds   []templates.Pond
     Query         string
 }
 
@@ -47,6 +49,7 @@ func main() {
         }
         http.NotFound(w, r)
     })
+    http.HandleFunc("/pond", handlers.HandlePondPage)
 
     // Start server
     log.Println("Server starting on http://localhost:8080")
@@ -149,39 +152,54 @@ func handleLogout(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleTrending(w http.ResponseWriter, r *http.Request) {
-    // Check if user is logged in
-    cookie, err := r.Cookie("user")
+    // Get database connection
+    db, err := database.GetDB()
     if err != nil {
-        http.Redirect(w, r, "/", http.StatusSeeOther)
+        http.Error(w, "Database error", http.StatusInternalServerError)
+        return
+    }
+    defer db.Close()
+
+    // Get trending posts with db connection (limit to 8)
+    dbPosts, err := database.GetTrendingPosts(db, 8)
+    if err != nil {
+        http.Error(w, err.Error(), http.StatusInternalServerError)
         return
     }
 
-    // Get user template
-    userTemplate := templates.GetUserTemplate(cookie.Value)
-    if userTemplate == nil {
-        http.Redirect(w, r, "/", http.StatusSeeOther)
-        return
+    // Convert database posts to template posts
+    trendingPosts := make([]templates.Post, len(dbPosts))
+    for i, post := range dbPosts {
+        trendingPosts[i] = templates.Post{
+            ID:          post.ID,
+            Title:       post.Title,
+            Description: post.Description,
+            Comments:    post.Comments,
+            Likes:       post.Likes,
+            PondName:    post.PondName,
+            Author:      post.Author,
+            CreatedAt:   post.CreatedAt,
+        }
     }
 
-    // Get trending posts
-    trendingPosts, err := templates.GetTrendingPosts()
-    if err != nil {
-        log.Printf("Error getting trending posts: %v", err)
-        trendingPosts = []templates.Post{}
+    // Get user data if logged in
+    var user *templates.UserTemplate
+    if cookie, err := r.Cookie("user"); err == nil {
+        user = templates.GetUserTemplate(cookie.Value)
     }
 
-    // Prepare data for the trending page
-    data := PageData{
-        User:          userTemplate,
+    data := struct {
+        User          *templates.UserTemplate
+        TrendingPosts []templates.Post
+    }{
+        User:          user,
         TrendingPosts: trendingPosts,
     }
 
+    // Create template with functions
     tmpl, err := template.New("trending.html").Funcs(template.FuncMap{
         "add": func(a, b int) int {
             return a + b
-        },
-        "div": func(a, b int) float64 {
-            return float64(a) / float64(b)
         },
     }).ParseFiles("templates/trending.html")
     if err != nil {
@@ -253,8 +271,19 @@ func handleSearch(w http.ResponseWriter, r *http.Request) {
         return
     }
 
-    // Search through all posts
+    // Search through all posts and ponds
     var results []templates.Post
+    var pondResults []templates.Pond
+    
+    db, err := database.GetDB()
+    if err != nil {
+        log.Printf("Error getting database: %v", err)
+        http.Error(w, "Database error", http.StatusInternalServerError)
+        return
+    }
+    defer db.Close()
+
+    // Search posts
     allPosts, err := templates.GetAllPosts()
     if err != nil {
         log.Printf("Error getting posts: %v", err)
@@ -268,10 +297,25 @@ func handleSearch(w http.ResponseWriter, r *http.Request) {
         }
     }
 
+    // Search ponds
+    allPonds, err := database.GetAllPonds(db)
+    if err != nil {
+        log.Printf("Error getting ponds: %v", err)
+        allPonds = []database.Pond{}
+    }
+
+    for _, pond := range allPonds {
+        if strings.Contains(strings.ToLower(pond.Name), query) ||
+           strings.Contains(strings.ToLower(pond.Description), query) {
+            pondResults = append(pondResults, templates.ConvertDatabasePond(pond))
+        }
+    }
+
     // Prepare data for the template
     data := PageData{
         User:          userTemplate,
         SearchResults: results,
+        SearchPonds:   pondResults,
         Query:         r.URL.Query().Get("q"),
     }
 

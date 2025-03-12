@@ -538,9 +538,11 @@
                                 <i class="bi bi-trash"></i>
                             </button>
                             <div class="d-flex justify-content-between align-items-start mb-2">
-                                <div class="pond-tag">
-                                    <i class="bi bi-water me-1"></i>
-                                    <small>{{.PondName}}</small>
+                                <div class="pond-badge">
+                                    <i class="bi bi-water"></i>
+                                    <a href="/pond?name={{.PondName}}" class="text-decoration-none" style="color: inherit;">
+                                        {{.PondName}}
+                                    </a>
                                 </div>
                             </div>
                             <h3 class="post-title h5">{{.Title}}</h3>
@@ -568,9 +570,11 @@
                                 <i class="bi bi-trash"></i>
                             </button>
                             <div class="d-flex justify-content-between align-items-start mb-2">
-                                <div class="pond-tag">
-                                    <i class="bi bi-water me-1"></i>
-                                    <small>{{.PondName}}</small>
+                                <div class="pond-badge">
+                                    <i class="bi bi-water"></i>
+                                    <a href="/pond?name={{.PondName}}" class="text-decoration-none" style="color: inherit;">
+                                        {{.PondName}}
+                                    </a>
                                 </div>
                             </div>
                             <h3 class="post-title h5">{{.Title}}</h3>
@@ -597,7 +601,9 @@
                     {{range .User.Ponds}}
                     <div class="col-md-6 mb-3">
                         <div class="pond-card">
-                            <h4 class="h5 mb-2">{{.Name}}</h4>
+                            <a href="/pond?name={{.Name}}" class="text-decoration-none">
+                                <h4 class="h5 mb-2">{{.Name}}</h4>
+                            </a>
                             <p class="mb-2">{{.Description}}</p>
                             <small class="text-muted">
                                 <i class="bi bi-people me-1"></i>{{.Members}} members
