@@ -10,6 +10,7 @@ import (
     "ribbit/internal/handlers"
     "ribbit/internal/database"
     "github.com/go-chi/chi"
+    "github.com/go-chi/chi/middleware"
 )
 
 // PageData represents the data we'll pass to our template
@@ -30,12 +31,16 @@ func main() {
         log.Fatal("Error loading .env file")
     }
 
-    // Serve static files
-    fs := http.FileServer(http.Dir("static"))
-    http.Handle("/static/", http.StripPrefix("/static/", fs))
-
     // Create a new router
     r := chi.NewRouter()
+
+    // Basic middleware
+    r.Use(middleware.Logger)
+    r.Use(middleware.Recoverer)
+
+    // Serve static files
+    fileServer := http.FileServer(http.Dir("static"))
+    r.Handle("/static/*", http.StripPrefix("/static/", fileServer))
 
     // Handle routes
     r.HandleFunc("/", handleHome)
