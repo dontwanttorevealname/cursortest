@@ -85,6 +85,11 @@
             background-color: #e1f5fe;  /* Light cyan */
         }
 
+        .avatar-default {
+            background-color: transparent;
+            border: 2px solid rgba(255, 255, 255, 0.8);
+        }
+
         .profile-avatar i {
             font-size: 4rem;
             color: var(--ribbit-accent);
@@ -104,7 +109,7 @@
         }
 
         .stat-number {
-            font-size: 1.5rem;
+             
             font-weight: bold;
             color: var(--ribbit-dark);
         }
@@ -237,7 +242,7 @@
 
         .social-icons i {
             color: var(--ribbit-secondary) !important;
-            font-size: 1.5rem;
+             
             transition: all 0.3s ease;
             cursor: pointer;
         }
@@ -353,6 +358,29 @@
             box-shadow: 0 4px 12px rgba(74,102,112,0.15);
             border-left: 4px solid var(--ribbit-accent);
         }
+
+        .profile-info {
+            background-color: var(--ribbit-light);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 8px rgba(74,102,112,0.1);
+        }
+
+        .description-container {
+            background-color: white;
+            border-left: 4px solid var(--ribbit-accent);
+        }
+
+        .profile-info h2 {
+            color: var(--ribbit-dark);
+            font-weight: 600;
+        }
+
+        .profile-info p {
+            font-size: 1.1rem;
+            line-height: 1.6;
+        }
     </style>
 </head>
 <body>
@@ -382,7 +410,7 @@
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item"><a href="/" class="nav-link"><i class="bi bi-house-door-fill me-1"></i>Home</a></li>
                     <li class="nav-item"><a href="/trending" class="nav-link"><i class="bi bi-fire me-1"></i>Trending</a></li>
-                    <li class="nav-item"><a href="#" class="nav-link"><i class="bi bi-bookmark-fill me-1"></i>Saved</a></li>
+                    <li class="nav-item"><a href="/discover" class="nav-link"><i class="bi bi-compass me-1"></i>Discover</a></li>
                     <li class="nav-item">
                         <a href="/profile" class="nav-link">
                             <span class="nav-profile-icon 
@@ -393,7 +421,7 @@
                                 {{else if eq .User.Email "BookWorm42"}}avatar-bookworm
                                 {{else if eq .User.Email "ChefCroak"}}avatar-chefcroak
                                 {{else if eq .User.Email "LabRat"}}avatar-labrat
-                                {{end}}">
+                                {{else}}avatar-default{{end}}">
                                 {{if eq .User.Email "admin@ribbit.com"}}
                                     <i class="bi bi-shield-check" style="color: #2e7d32;"></i>
                                 {{else if eq .User.Email "ByteMaster"}}
@@ -409,7 +437,7 @@
                                 {{else if eq .User.Email "LabRat"}}
                                     <i class="bi bi-clipboard2-pulse" style="color: #0277bd;"></i>
                                 {{else}}
-                                    <i class="bi bi-person" style="color: var(--ribbit-accent);"></i>
+                                    <i class="bi bi-person" style="color: white;"></i>
                                 {{end}}
                             </span>
                             Profile
@@ -436,7 +464,7 @@
                 {{else if eq .User.Email "BookWorm42"}}avatar-bookworm
                 {{else if eq .User.Email "ChefCroak"}}avatar-chefcroak
                 {{else if eq .User.Email "LabRat"}}avatar-labrat
-                {{end}}">
+                {{else}}avatar-default{{end}}">
                 {{if eq .User.Email "admin@ribbit.com"}}
                     <i class="bi bi-shield-check" style="color: #2e7d32; font-size: 4rem;"></i>  <!-- Dark green -->
                 {{else if eq .User.Email "ByteMaster"}}
@@ -455,26 +483,19 @@
                     <i class="bi bi-person" style="color: var(--ribbit-accent); font-size: 4rem;"></i>
                 {{end}}
             </div>
-            <h2 class="text-center mb-2">{{.User.Email}}</h2>
-            <p class="profile-bio text-center mb-4">
-                {{if eq .User.Email "admin@ribbit.com"}}
-                    Official Ribbit administrator account. Posts platform updates and community guidelines.
-                {{else if eq .User.Email "ByteMaster"}}
-                    Software developer and AI enthusiast. Active in technology discussions.
-                {{else if eq .User.Email "GreenGuru"}}
-                    Professional gardener and plant enthusiast.
-                {{else if eq .User.Email "PixelPainter"}}
-                    Digital artist and graphic designer.
-                {{else if eq .User.Email "BookWorm42"}}
-                    Literature enthusiast and book reviewer.
-                {{else if eq .User.Email "ChefCroak"}}
-                    Amateur chef and food photography enthusiast.
-                {{else if eq .User.Email "LabRat"}}
-                    Science teacher and researcher.
+            <div class="profile-info mb-4 text-center">
+                <h2 class="h4 mb-3">{{.User.Email}}</h2>
+                {{if .User.Description}}
+                    <div class="description-container bg-white p-3 rounded-3 shadow-sm mb-3 mx-auto" style="max-width: 600px;">
+                        <p class="mb-2" style="color: var(--ribbit-dark);">{{.User.Description}}</p>
+                    </div>
                 {{else}}
-                    Ribbit Enthusiast
+                    <div class="description-container bg-white p-3 rounded-3 shadow-sm mb-3 mx-auto" style="max-width: 600px;">
+                        <p class="text-muted mb-2">No description provided</p>
+                    </div>
                 {{end}}
-            </p>
+                <small class="text-muted">Joined {{.User.JoinDate.Format "January 2, 2006"}}</small>
+            </div>
         </div>
     </div>
 

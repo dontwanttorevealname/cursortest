@@ -56,10 +56,16 @@ func main() {
     r.Get("/pond", handlers.HandlePondPage)
     r.Post("/api/ponds/join", handlers.JoinPond)
     r.Post("/api/ponds/leave", handlers.LeavePond)
+    r.Get("/signup", handlers.HandleSignup)
+    r.Post("/signup", handlers.HandleSignup)
+    r.Get("/check-username", handlers.CheckUsername)
+    r.Get("/discover", handlers.HandleDiscoverPonds)
 
     // Start server
-    log.Println("Server starting on http://localhost:8080")
-    log.Fatal(http.ListenAndServe(":8080", r))
+    log.Println("Server starting on :8080")
+    if err := http.ListenAndServe(":8080", r); err != nil {
+        log.Fatal(err)
+    }
 }
 
 func handleHome(w http.ResponseWriter, r *http.Request) {

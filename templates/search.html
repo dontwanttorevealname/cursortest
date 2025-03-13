@@ -138,7 +138,7 @@
 
         .social-icons i {
             color: var(--ribbit-secondary) !important;
-            font-size: 1.5rem;
+             
             transition: all 0.3s ease;
             cursor: pointer;
         }
@@ -159,13 +159,38 @@
         }
 
         /* Add avatar background colors */
-        .avatar-admin { background-color: #e8f5e9; }
-        .avatar-bytemaster { background-color: #e3f2fd; }
-        .avatar-greenguru { background-color: #f1f8e9; }
-        .avatar-pixelpainter { background-color: #f3e5f5; }
-        .avatar-bookworm { background-color: #efebe9; }
-        .avatar-chefcroak { background-color: #fff3e0; }
-        .avatar-labrat { background-color: #e1f5fe; }
+        .avatar-admin {
+            background-color: #e8f5e9;  /* Light mint */
+        }
+
+        .avatar-bytemaster {
+            background-color: #e3f2fd;  /* Light blue */
+        }
+
+        .avatar-greenguru {
+            background-color: #f1f8e9;  /* Light green */
+        }
+
+        .avatar-pixelpainter {
+            background-color: #f3e5f5;  /* Light purple */
+        }
+
+        .avatar-bookworm {
+            background-color: #efebe9;  /* Light brown */
+        }
+
+        .avatar-chefcroak {
+            background-color: #fff3e0;  /* Light orange */
+        }
+
+        .avatar-labrat {
+            background-color: #e1f5fe;  /* Light cyan */
+        }
+
+        .avatar-default {
+            background-color: transparent;
+            border: 2px solid rgba(255, 255, 255, 0.8);
+        }
 
         .toast-container {
             position: fixed;
@@ -276,7 +301,7 @@
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item"><a href="/" class="nav-link"><i class="bi bi-house-door-fill me-1"></i>Home</a></li>
                     <li class="nav-item"><a href="/trending" class="nav-link"><i class="bi bi-fire me-1"></i>Trending</a></li>
-                    <li class="nav-item"><a href="#" class="nav-link"><i class="bi bi-bookmark-fill me-1"></i>Saved</a></li>
+                    <li class="nav-item"><a href="/discover" class="nav-link"><i class="bi bi-compass me-1"></i>Discover</a></li>
                     {{if .User}}
                     <li class="nav-item">
                         <a href="/profile" class="nav-link">
@@ -288,7 +313,7 @@
                                 {{else if eq .User.Email "BookWorm42"}}avatar-bookworm
                                 {{else if eq .User.Email "ChefCroak"}}avatar-chefcroak
                                 {{else if eq .User.Email "LabRat"}}avatar-labrat
-                                {{end}}">
+                                {{else}}avatar-default{{end}}">
                                 {{if eq .User.Email "admin@ribbit.com"}}
                                     <i class="bi bi-shield-check" style="color: #2e7d32;"></i>
                                 {{else if eq .User.Email "ByteMaster"}}
@@ -304,7 +329,7 @@
                                 {{else if eq .User.Email "LabRat"}}
                                     <i class="bi bi-clipboard2-pulse" style="color: #0277bd;"></i>
                                 {{else}}
-                                    <i class="bi bi-person" style="color: var(--ribbit-accent);"></i>
+                                    <i class="bi bi-person" style="color: white;  "></i>
                                 {{end}}
                             </span>
                             Profile

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ribbit - Trending</title>
+    <title>Ribbit - Discover Ponds</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
@@ -44,14 +44,13 @@
             border: none;
             transition: transform 0.3s ease;
             border-radius: 20px;
-            margin-bottom: 1.5rem;
         }
 
         .card:hover {
             transform: translateY(-2px);
             box-shadow: 0 6px 12px rgba(74,102,112,0.12);
         }
-        
+
         .section-title {
             color: var(--ribbit-dark);
             border-bottom: 2px solid var(--ribbit-secondary);
@@ -59,104 +58,14 @@
             margin-bottom: 1.5rem;
         }
 
-        .trending-number {
-            font-size: 2rem;
-            font-weight: bold;
-            color: var(--ribbit-accent);
-            width: 40px;
-            text-align: center;
-            font-family: 'Arial', sans-serif;
-            text-shadow: 1px 1px 2px rgba(74,102,112,0.1);
-        }
-        
-        .trending-post-card {
-            display: flex;
-            gap: 1rem;
-            align-items: start;
-            background-color: var(--ribbit-light);
-            border-radius: 15px;
-            padding: 1.2rem;
-            margin-bottom: 1rem;
-            transition: all 0.3s ease;
-            border-left: 4px solid var(--ribbit-accent);
-        }
-        
-        .trending-post-card:hover {
-            transform: translateY(-2px);
-            background-color: var(--ribbit-hover);
-            box-shadow: 0 4px 12px rgba(127,185,166,0.15);
-        }
-        
-        .engagement-score {
-            background: linear-gradient(45deg, var(--ribbit-dark), var(--ribbit-accent));
-            color: white;
-            padding: 0.3rem 0.8rem;
-            border-radius: 15px;
-            font-size: 0.9rem;
-            box-shadow: 0 2px 4px rgba(74,102,112,0.1);
-        }
-        
-        .pond-badge {
-            background-color: var(--ribbit-gray);
-            color: var(--ribbit-dark);
-            padding: 0.3rem 0.8rem;
-            border-radius: 15px;
-            font-size: 0.9rem;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.3rem;
-            transition: all 0.3s ease;
-        }
-
-        .pond-badge:hover {
-            background-color: var(--ribbit-secondary);
-            transform: translateY(-1px);
-        }
-
-        .post-title {
-            color: var(--ribbit-dark);
-            transition: color 0.3s ease;
-            margin-top: 0.5rem;
-        }
-
-        .post-title:hover {
-            color: var(--ribbit-accent);
-        }
-
-        .post-description {
-            color: #666;
-            font-size: 0.95rem;
-            line-height: 1.5;
-        }
-
-        .interaction-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            color: var(--ribbit-dark);
-            transition: all 0.3s ease;
-            cursor: pointer;
-            padding: 0.3rem 0.6rem;
-            border-radius: 12px;
-        }
-
-        .interaction-btn:hover {
-            color: var(--ribbit-accent);
-            background-color: var(--ribbit-gray);
-            transform: translateY(-1px);
-        }
-
         footer {
             background: linear-gradient(45deg, var(--ribbit-dark), var(--ribbit-accent)) !important;
             color: white;
             box-shadow: 0 -2px 8px rgba(74,102,112,0.15);
-            margin-top: 2rem;
-            padding: 2rem 0;
         }
 
         .social-icons i {
             color: var(--ribbit-secondary) !important;
-             
             transition: all 0.3s ease;
             cursor: pointer;
         }
@@ -166,43 +75,39 @@
             color: var(--ribbit-light) !important;
         }
 
-        /* Animation for trending posts */
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        .btn-ribbit {
+            background-color: var(--ribbit-accent);
+            color: white;
+            border: none;
+            padding: 0.5rem 1.5rem;
+            border-radius: 25px;
+            transition: all 0.3s ease;
         }
 
-        .trending-post-card {
-            animation: slideIn 0.3s ease-out forwards;
-            animation-delay: calc(var(--animation-order) * 0.1s);
-            opacity: 0;
+        .btn-ribbit:hover {
+            background-color: var(--ribbit-dark);
+            color: white;
+            transform: translateY(-2px);
         }
 
-        /* Responsive adjustments */
-        @media (max-width: 768px) {
-            .trending-number {
-                 
-                width: 30px;
-            }
 
-            .trending-post-card {
-                padding: 1rem;
-                gap: 0.5rem;
-            }
 
-            .engagement-score {
-                font-size: 0.8rem;
-                padding: 0.2rem 0.6rem;
-            }
+        /* Profile icon styles */
+        .nav-profile-icon {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 0.5rem;
         }
 
-        /* Add avatar background colors */
+        .nav-profile-icon i {
+            font-size: 1rem;
+        }
+
+        /* Avatar background colors */
         .avatar-admin {
             background-color: #e8f5e9;  /* Light mint */
         }
@@ -236,20 +141,52 @@
             border: 2px solid rgba(255, 255, 255, 0.8);
         }
 
-        .nav-profile-icon {
-            width: 28px;
-            height: 28px;
-            border-radius: 50%;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            margin-right: 0.5rem;
+        /* Pond-specific styles */
+        .pond-card {
+            background-color: var(--ribbit-light);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+            border: none;
+            box-shadow: 0 2px 4px rgba(74,102,112,0.1);
         }
 
-        .nav-profile-icon i {
-            font-size: 1rem;
+        .pond-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(74,102,112,0.2);
+            background-color: var(--ribbit-hover);
         }
 
+        .pond-stats {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+            color: var(--ribbit-dark);
+            font-size: 0.9rem;
+        }
+
+        .pond-category {
+            background-color: var(--ribbit-secondary);
+            color: var(--ribbit-dark);
+            padding: 0.3rem 0.8rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            display: inline-block;
+            margin-bottom: 0.5rem;
+        }
+
+        .pond-title {
+            color: var(--ribbit-dark);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .pond-title:hover {
+            color: var(--ribbit-accent);
+        }
+
+        /* Toast notification */
         .toast-container {
             position: fixed;
             bottom: 20px;
@@ -290,8 +227,8 @@
 
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item"><a href="/" class="nav-link"><i class="bi bi-house-door-fill me-1"></i>Home</a></li>
-                    <li class="nav-item"><a href="/trending" class="nav-link active"><i class="bi bi-fire me-1"></i>Trending</a></li>
-                    <li class="nav-item"><a href="/discover" class="nav-link"><i class="bi bi-compass me-1"></i>Discover</a></li>
+                    <li class="nav-item"><a href="/trending" class="nav-link"><i class="bi bi-fire me-1"></i>Trending</a></li>
+                    <li class="nav-item"><a href="/discover" class="nav-link active"><i class="bi bi-compass me-1"></i>Discover</a></li>
                     <li class="nav-item">
                         <a href="/profile" class="nav-link">
                             <span class="nav-profile-icon 
@@ -318,7 +255,7 @@
                                 {{else if eq .User.Email "LabRat"}}
                                     <i class="bi bi-clipboard2-pulse" style="color: #0277bd;"></i>
                                 {{else}}
-                                    <i class="bi bi-person" style="color: white;  "></i>
+                                    <i class="bi bi-person" style="color: white;"></i>
                                 {{end}}
                             </span>
                             Profile
@@ -335,52 +272,42 @@
     </header>
 
     <main class="container py-4">
-        <div class="row justify-content-center">
-            <div class="col-md-8">
-                <div class="card">
+        <div class="row">
+            <div class="col-12">
+                <div class="card mb-4">
                     <div class="card-body">
                         <h2 class="section-title">
-                            <i class="bi bi-fire me-2"></i>Top 8 Trending Across Ponds
+                            <i class="bi bi-compass me-2"></i>Discover Ponds
                         </h2>
-                        
-                        {{range $index, $post := .TrendingPosts}}
-                        <div class="trending-post-card" style="--animation-order: {{$index}}">
-                            <div class="trending-number">#{{add $index 1}}</div>
-                            <div class="flex-grow-1">
-                                <div class="d-flex justify-content-between align-items-start mb-2">
-                                    <div class="pond-badge">
-                                        <i class="bi bi-water"></i>
-                                        <a href="/pond?name={{.PondName}}" class="text-decoration-none" style="color: inherit;">
-                                            {{.PondName}}
-                                        </a>
-                                    </div>
-                                </div>
-                                <h3 class="post-title h5">{{.Title}}</h3>
-                                <p class="post-description mb-2">{{.Description}}</p>
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <small class="text-muted">Posted by {{.Author}}</small>
-                                    <div class="post-interactions">
-                                        <div class="interaction-btn">
-                                            <i class="bi bi-chat-dots"></i>
-                                            <span>{{.Comments}}</span>
-                                        </div>
-                                        <div class="interaction-btn ms-3">
-                                            <i class="bi bi-heart"></i>
-                                            <span>{{.Likes}}</span>
+                        <p class="text-muted mb-4">Find your next favorite community</p>
+
+                        <div class="ponds-list">
+                            {{range .Ponds}}
+                            <div class="pond-card">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <h3 class="h5">{{.Name}}</h3>
+                                        <p class="mb-2">{{.Description}}</p>
+                                        <div class="pond-stats">
+                                            <span><i class="bi bi-people-fill me-1"></i>{{.MemberCount}} members</span>
+                                            <span><i class="bi bi-calendar3 me-1"></i>Created {{.CreatedAt}}</span>
                                         </div>
                                     </div>
+                                    <a href="/pond?name={{.Name}}" class="btn btn-ribbit">
+                                        Visit Pond
+                                    </a>
                                 </div>
                             </div>
+                            {{end}}
                         </div>
-                        {{end}}
                     </div>
                 </div>
             </div>
         </div>
     </main>
 
-    <footer>
-        <div class="container">
+    <footer class="mt-4">
+        <div class="container py-3">
             <div class="row">
                 <div class="col-md-4 text-center text-md-start">
                     <h5><i class="bi bi-flower1 me-2"></i>Ribbit</h5>
@@ -401,12 +328,11 @@
         </div>
     </footer>
 
-    <!-- Add toast container before closing body tag -->
+    <!-- Toast container for notifications -->
     <div class="toast-container">
         <div class="toast ribbit-toast" role="alert" aria-live="assertive" aria-atomic="true">
             <div class="toast-body">
-                <i class="bi bi-info-circle me-2"></i>
-                Searching through the pond...
+                <!-- Toast message will be inserted here -->
             </div>
         </div>
     </div>
@@ -421,21 +347,6 @@
                     delay: 3000
                 });
             });
-        });
-
-        // Show loading state for search
-        document.querySelector('form[action="/search"]').addEventListener('submit', function(e) {
-            const button = this.querySelector('button');
-            const icon = button.querySelector('i');
-            button.disabled = true;
-            icon.className = 'spinner-border spinner-border-sm';
-            
-            // Show toast after search
-            setTimeout(() => {
-                const toast = document.querySelector('.toast');
-                const bsToast = new bootstrap.Toast(toast);
-                bsToast.show();
-            }, 1000);
         });
 
         // Add keyboard navigation

@@ -162,4 +162,35 @@ func GetPosts(db *sql.DB) ([]Post, error) {
     }
 
     return posts, nil
+}
+
+// GetAllPondsSortedByMembers returns all ponds sorted by member count
+func GetAllPondsSortedByMembers(db *sql.DB) ([]Pond, error) {
+    rows, err := db.Query(`
+        SELECT id, name, description, member_count, created_at 
+        FROM ponds 
+        ORDER BY member_count DESC
+    `)
+    if err != nil {
+        return nil, err
+    }
+    defer rows.Close()
+
+    var ponds []Pond
+    for rows.Next() {
+        var pond Pond
+        err := rows.Scan(
+            &pond.ID,
+            &pond.Name,
+            &pond.Description,
+            &pond.MemberCount,
+            &pond.CreatedAt,
+        )
+        if err != nil {
+            return nil, err
+        }
+        ponds = append(ponds, pond)
+    }
+
+    return ponds, nil
 } 

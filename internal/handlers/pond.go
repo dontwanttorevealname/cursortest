@@ -460,3 +460,51 @@ func timeAgo(t time.Time) string {
 		return t.Format("Jan 2, 2006")
 	}
 }
+
+// HandleDiscoverPonds handles the discover ponds page
+func HandleDiscoverPonds(w http.ResponseWriter, r *http.Request) {
+	// Get database connection
+	db, err := database.GetDB()
+	if err != nil {
+		http.Error(w, "Database error", http.StatusInternalServerError)
+		return
+	}
+	defer db.Close()
+
+	// Get all ponds sorted by member count
+	ponds, err := database.GetAllPondsSortedByMembers(db)
+	if err != nil {
+		http.Error(w, "Failed to get ponds", http.StatusInternalServerError)
+		return
+	}
+
+	// Get user from cookie if logged in
+	var user *templates.UserTemplate
+	if cookie, err := r.Cookie("user"); err == nil {
+		user = templates.GetUserTemplate(cookie.Value)
+	}
+
+	// Create page data struct
+	data := PageData{
+		User:  user,
+		Ponds: ponds,
+	}
+
+	// Parse and execute template
+	tmpl, err := template.ParseFiles("templates/discover_ponds.html")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	err = tmpl.Execute(w, data)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+}
+
+// PageData represents the data we'll pass to our template
+type PageData struct {
+	User  *templates.UserTemplate
+	Ponds []database.Pond
+}

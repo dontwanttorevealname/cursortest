@@ -4,7 +4,6 @@ import (
     _ "github.com/tursodatabase/libsql-client-go/libsql"
     "encoding/json"
     "fmt"
-    "log"
     "net/http"
     "strconv"
     "time"
@@ -18,7 +17,7 @@ type UserTemplate struct {
     ID            int64
     Email         string    // Using username from SQL as email
     Password      string    // Using password_hash from SQL
-    Description   string
+    Description   string    // Make sure this field exists
     JoinDate      time.Time
     OfficialPosts []Post    // Add this field for official posts
     Posts         []Post    // This will be pond-specific posts
@@ -188,14 +187,12 @@ func convertDatabasePonds(dbPonds []database.Pond) []Pond {
 func (u *UserTemplate) GetOfficialPosts() []Post {
     db, err := database.GetDB()
     if err != nil {
-        log.Printf("Error getting database connection: %v", err)
         return nil
     }
     defer db.Close()
 
     dbPosts, err := database.GetOfficialPosts(db, 10) // Get up to 10 official posts
     if err != nil {
-        log.Printf("Error getting official posts: %v", err)
         return nil
     }
 
@@ -213,45 +210,47 @@ var templateFuncs = template.FuncMap{
 func GetUserTemplate(username string) *UserTemplate {
     db, err := database.GetDB()
     if err != nil {
-        log.Printf("Error opening database: %v", err)
         return nil
     }
     defer db.Close()
 
-    user, err := database.GetUser(db, username)
+    var user UserTemplate
+    err = db.QueryRow(`
+        SELECT id, username, password_hash, description, join_date 
+        FROM users 
+        WHERE username = ?`, username).Scan(
+        &user.ID,
+        &user.Email,
+        &user.Password,
+        &user.Description,
+        &user.JoinDate,
+    )
     if err != nil {
-        log.Printf("Error getting user: %v", err)
-        return nil
-    }
-    if user == nil {
         return nil
     }
 
     // Get official posts
     officialPosts, err := database.GetOfficialPosts(db, 10)
     if err != nil {
-        log.Printf("Error getting official posts: %v", err)
-        officialPosts = []database.Post{} // Use empty slice instead of nil
+        officialPosts = []database.Post{}
     }
 
     // Get user's pond posts
     pondPosts, err := database.GetUserFeed(db, user.ID, 0, 20)
     if err != nil {
-        log.Printf("Error getting user feed: %v", err)
-        pondPosts = []database.Post{} // Use empty slice instead of nil
+        pondPosts = []database.Post{}
     }
 
-    // Get user's ponds - convert ID to string
-    ponds, err := database.GetUserPonds(db, username) // Changed from user.ID to username
+    // Get user's ponds
+    ponds, err := database.GetUserPonds(db, username)
     if err != nil {
-        log.Printf("Error getting user ponds: %v", err)
-        ponds = []database.Pond{} // Use empty slice instead of nil
+        ponds = []database.Pond{}
     }
 
     return &UserTemplate{
         ID:            user.ID,
-        Email:         user.Username,
-        Password:      user.PasswordHash,
+        Email:         user.Email,
+        Password:      user.Password,
         Description:   user.Description,
         JoinDate:      user.JoinDate,
         OfficialPosts: convertDatabasePosts(officialPosts),
@@ -389,14 +388,12 @@ func GetAllPosts() ([]Post, error) {
 func (u *UserTemplate) GetPaginatedPosts(start, count int) []Post {
     db, err := database.GetDB()
     if err != nil {
-        log.Printf("Error getting database connection: %v", err)
         return nil
     }
     defer db.Close()
 
     dbPosts, err := database.GetUserFeed(db, u.ID, start, count)
     if err != nil {
-        log.Printf("Error getting paginated posts: %v", err)
         return nil
     }
 
@@ -405,31 +402,24 @@ func (u *UserTemplate) GetPaginatedPosts(start, count int) []Post {
 
 // Update HandleGetPosts to handle both official and pond posts
 func HandleGetPosts(w http.ResponseWriter, r *http.Request) {
-    fmt.Println("HandleGetPosts called")
-    
     // Parse query parameters
     startStr := r.URL.Query().Get("start")
     countStr := r.URL.Query().Get("count")
-    postType := r.URL.Query().Get("type") // Add type parameter: "official" or "pond"
+    postType := r.URL.Query().Get("type")
     
     start, err := strconv.Atoi(startStr)
     if err != nil {
-        fmt.Println("Error parsing start:", err)
         start = 0
     }
     
     count, err := strconv.Atoi(countStr)
     if err != nil {
-        fmt.Println("Error parsing count:", err)
         count = 3
     }
-    
-    fmt.Printf("Fetching posts from %d to %d\n", start, count)
     
     // Get user from session
     user, ok := r.Context().Value("user").(*UserTemplate)
     if !ok {
-        fmt.Println("User not found in context")
         http.Error(w, "Unauthorized", http.StatusUnauthorized)
         return
     }
@@ -441,14 +431,9 @@ func HandleGetPosts(w http.ResponseWriter, r *http.Request) {
         posts = user.GetPaginatedPosts(start, count)
     }
     
-    fmt.Printf("Found %d posts\n", len(posts))
-    
-    // Set JSON content type
     w.Header().Set("Content-Type", "application/json")
     
-    // Encode posts as JSON and send response
     if err := json.NewEncoder(w).Encode(posts); err != nil {
-        fmt.Println("Error encoding posts:", err)
         http.Error(w, "Failed to encode posts", http.StatusInternalServerError)
         return
     }
