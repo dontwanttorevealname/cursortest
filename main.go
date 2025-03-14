@@ -66,6 +66,40 @@ func main() {
     r.Get("/check-username", handlers.CheckUsername)
     r.Get("/discover", handlers.HandleDiscoverPonds)
 
+    // Add template handler route
+    r.Get("/templates/{template}", func(w http.ResponseWriter, r *http.Request) {
+        templateName := chi.URLParam(r, "template")
+        
+        // Security check - only allow specific templates
+        allowedTemplates := map[string]bool{
+            "navbar.html": true,
+            // Add other shared templates here as needed
+        }
+        
+        if !allowedTemplates[templateName] {
+            http.NotFound(w, r)
+            return
+        }
+
+        // Get current user for navbar template
+        user := getCurrentUser(r)
+        
+        // Create template data
+        data := struct {
+            User *templates.UserTemplate
+        }{
+            User: user,
+        }
+
+        // Parse and execute template
+        tmpl := template.Must(template.ParseFiles("templates/" + templateName))
+        err := tmpl.Execute(w, data)
+        if err != nil {
+            http.Error(w, err.Error(), http.StatusInternalServerError)
+            return
+        }
+    })
+
     // Start server
     log.Println("Server starting on :8080")
     if err := http.ListenAndServe(":8080", r); err != nil {
@@ -380,4 +414,17 @@ func handleCreatePost(w http.ResponseWriter, r *http.Request) {
     if err != nil {
         http.Error(w, err.Error(), http.StatusInternalServerError)
     }
+}
+
+// Update getCurrentUser function to use cookie-based auth
+func getCurrentUser(r *http.Request) *templates.UserTemplate {
+    // Get user from cookie
+    cookie, err := r.Cookie("user")
+    if err != nil {
+        return nil
+    }
+    
+    // Get user template using the email from cookie
+    userTemplate := templates.GetUserTemplate(cookie.Value)
+    return userTemplate
 } 
