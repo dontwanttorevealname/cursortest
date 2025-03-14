@@ -72,7 +72,7 @@ func getRandomPostsFromPond(db *sql.DB, pondName string, minCount int, excludeAu
         if err != nil {
             return nil, err
         }
-        posts = append(posts, convertDatabasePost(dbPost))
+        posts = append(posts, ConvertDatabasePost(dbPost))
     }
 
     return posts, nil
@@ -135,14 +135,14 @@ func getRandomPostsForUser(db *sql.DB, userPonds []Pond, excludeAuthor string) (
         if err != nil {
             return nil, err
         }
-        posts = append(posts, convertDatabasePost(dbPost))
+        posts = append(posts, ConvertDatabasePost(dbPost))
     }
 
     return posts, nil
 }
 
 // Convert database.Post to templates.Post
-func convertDatabasePost(dbPost database.Post) Post {
+func ConvertDatabasePost(dbPost database.Post) Post {
     return Post{
         ID:          dbPost.ID,
         Title:       dbPost.Title,
@@ -152,7 +152,7 @@ func convertDatabasePost(dbPost database.Post) Post {
         PondName:    dbPost.PondName,
         Author:      dbPost.Author,
         CreatedAt:   dbPost.CreatedAt,
-        TimeAgo:     formatTimeAgo(dbPost.CreatedAt),
+        TimeAgo:     dbPost.TimeAgo,
     }
 }
 
@@ -166,10 +166,10 @@ func ConvertDatabasePond(dbPond database.Pond) Pond {
 }
 
 // Convert slice of database posts to template posts
-func convertDatabasePosts(dbPosts []database.Post) []Post {
+func ConvertDatabasePosts(dbPosts []database.Post) []Post {
     posts := make([]Post, len(dbPosts))
     for i, dbPost := range dbPosts {
-        posts[i] = convertDatabasePost(dbPost)
+        posts[i] = ConvertDatabasePost(dbPost)
     }
     return posts
 }
@@ -191,12 +191,12 @@ func (u *UserTemplate) GetOfficialPosts() []Post {
     }
     defer db.Close()
 
-    dbPosts, err := database.GetOfficialPosts(db, 10) // Get up to 10 official posts
+    dbPosts, err := database.GetOfficialPosts(db, 10)
     if err != nil {
         return nil
     }
 
-    return convertDatabasePosts(dbPosts)
+    return ConvertDatabasePosts(dbPosts)
 }
 
 // Add these new functions
@@ -253,8 +253,8 @@ func GetUserTemplate(username string) *UserTemplate {
         Password:      user.Password,
         Description:   user.Description,
         JoinDate:      user.JoinDate,
-        OfficialPosts: convertDatabasePosts(officialPosts),
-        Posts:         convertDatabasePosts(pondPosts),
+        OfficialPosts: ConvertDatabasePosts(officialPosts),
+        Posts:         ConvertDatabasePosts(pondPosts),
         Ponds:         convertDatabasePonds(ponds),
     }
 }
@@ -299,7 +299,7 @@ func GetTrendingPosts(db *sql.DB) ([]Post, error) {
         if err != nil {
             return nil, err
         }
-        posts = append(posts, convertDatabasePost(dbPost))
+        posts = append(posts, ConvertDatabasePost(dbPost))
     }
 
     return posts, nil
@@ -378,7 +378,7 @@ func GetAllPosts() ([]Post, error) {
         if err != nil {
             return nil, err
         }
-        posts = append(posts, convertDatabasePost(dbPost))
+        posts = append(posts, ConvertDatabasePost(dbPost))
     }
 
     return posts, nil
@@ -397,7 +397,7 @@ func (u *UserTemplate) GetPaginatedPosts(start, count int) []Post {
         return nil
     }
 
-    return convertDatabasePosts(dbPosts)
+    return ConvertDatabasePosts(dbPosts)
 }
 
 // Update HandleGetPosts to handle both official and pond posts

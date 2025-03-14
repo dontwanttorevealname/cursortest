@@ -46,19 +46,32 @@
                         </h2>
                         {{range .Posts}}
                         <div class="post-card">
-                            <div class="d-flex justify-content-between align-items-start mb-2">
-                                <h3 class="h5 mb-0">{{.Title}}</h3>
-                                <small class="text-muted">{{.TimeAgo}}</small>
+                            <div class="post-header">
+                                <div class="pond-badge">
+                                    <i class="bi bi-water"></i>
+                                    <a href="/pond?name={{.PondName}}" class="text-decoration-none" style="color: inherit;">
+                                        {{.PondName}}
+                                    </a>
+                                </div>
+                                <div class="post-meta">
+                                    <small class="text-muted">Posted by {{.Author}}</small>
+                                    <small class="text-muted">{{.TimeAgo}}</small>
+                                </div>
                             </div>
-                            <p class="mb-2">{{.Description}}</p>
-                            <div class="d-flex gap-3">
+                            <h3 class="post-title">{{.Title}}</h3>
+                            <p class="post-description">{{.Description}}</p>
+                            <div class="post-interactions">
                                 <div class="interaction-btn">
                                     <i class="bi bi-heart"></i>
                                     <span>{{.Likes}} likes</span>
                                 </div>
                                 <div class="interaction-btn">
-                                    <i class="bi bi-chat"></i>
+                                    <i class="bi bi-chat-dots"></i>
                                     <span>{{.Comments}} comments</span>
+                                </div>
+                                <div class="interaction-btn">
+                                    <i class="bi bi-share"></i>
+                                    <span>Share</span>
                                 </div>
                             </div>
                         </div>

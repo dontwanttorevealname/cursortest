@@ -49,23 +49,32 @@
                                 {{if .SearchResults}}
                                     {{range .SearchResults}}
                                     <div class="post-card">
-                                        <div class="d-flex justify-content-between align-items-start mb-2">
-                                            <div class="pond-tag">
-                                                <i class="bi bi-water me-1"></i>
-                                                <small>{{.PondName}}</small>
+                                        <div class="post-header">
+                                            <div class="pond-badge">
+                                                <i class="bi bi-water"></i>
+                                                <a href="/pond?name={{.PondName}}" class="text-decoration-none" style="color: inherit;">
+                                                    {{.PondName}}
+                                                </a>
                                             </div>
-                                            <small class="text-muted">Posted by {{.Author}}</small>
+                                            <div class="post-meta">
+                                                <small class="text-muted">Posted by {{.Author}}</small>
+                                                <small class="text-muted">{{.TimeAgo}}</small>
+                                            </div>
                                         </div>
-                                        <h3 class="post-title h5">{{.Title}}</h3>
+                                        <h3 class="post-title">{{.Title}}</h3>
                                         <p class="post-description">{{.Description}}</p>
                                         <div class="post-interactions">
                                             <div class="interaction-btn">
-                                                <i class="bi bi-chat-dots me-1"></i>
+                                                <i class="bi bi-chat-dots"></i>
                                                 <span>{{.Comments}} comments</span>
                                             </div>
-                                            <div class="interaction-btn ms-3">
-                                                <i class="bi bi-heart me-1"></i>
+                                            <div class="interaction-btn">
+                                                <i class="bi bi-heart"></i>
                                                 <span>{{.Likes}} likes</span>
+                                            </div>
+                                            <div class="interaction-btn">
+                                                <i class="bi bi-share"></i>
+                                                <span>Share</span>
                                             </div>
                                         </div>
                                     </div>

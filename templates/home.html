@@ -72,25 +72,28 @@
                         <div id="posts-container">
                             {{range $index, $post := .User.Posts}}
                             <div class="post-card" {{if gt $index 5}}style="display: none;"{{end}}>
-                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                <div class="post-header">
                                     <div class="pond-badge">
                                         <i class="bi bi-water"></i>
                                         <a href="/pond?name={{.PondName}}" class="text-decoration-none" style="color: inherit;">
                                             {{.PondName}}
                                         </a>
                                     </div>
-                                    <small class="text-muted">{{.TimeAgo}}</small>
-                                </div>
-                                <h3 class="post-title h5">{{.Title}}</h3>
-                                <p class="post-description mb-2">{{.Description}}</p>
-                                <div class="post-interactions">
-                                    <div class="interaction-btn">
-                                        <i class="bi bi-chat-dots"></i>
-                                        <span>{{.Comments}} comments</span>
+                                    <div class="post-meta">
+                                        <small class="text-muted">Posted by {{.Author}}</small>
+                                        <small class="text-muted">{{.TimeAgo}}</small>
                                     </div>
+                                </div>
+                                <h3 class="post-title">{{.Title}}</h3>
+                                <p class="post-description">{{.Description}}</p>
+                                <div class="post-interactions">
                                     <div class="interaction-btn">
                                         <i class="bi bi-heart"></i>
                                         <span>{{.Likes}} likes</span>
+                                    </div>
+                                    <div class="interaction-btn">
+                                        <i class="bi bi-chat-dots"></i>
+                                        <span>{{.Comments}} comments</span>
                                     </div>
                                     <div class="interaction-btn">
                                         <i class="bi bi-share"></i>

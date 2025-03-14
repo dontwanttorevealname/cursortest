@@ -35,7 +35,7 @@ func main() {
     r := chi.NewRouter()
 
     // Basic middleware
-    r.Use(middleware.Logger)
+    // r.Use(middleware.Logger)
     r.Use(middleware.Recoverer)
 
     // Serve static files
@@ -211,43 +211,29 @@ func handleTrending(w http.ResponseWriter, r *http.Request) {
     }
     defer db.Close()
 
-    // Get trending posts with db connection (limit to 8)
+    // Get trending posts
     dbPosts, err := database.GetTrendingPosts(db, 8)
     if err != nil {
-        http.Error(w, err.Error(), http.StatusInternalServerError)
+        http.Error(w, "Failed to get trending posts", http.StatusInternalServerError)
         return
     }
 
-    // Convert database posts to template posts
-    trendingPosts := make([]templates.Post, len(dbPosts))
-    for i, post := range dbPosts {
-        trendingPosts[i] = templates.Post{
-            ID:          post.ID,
-            Title:       post.Title,
-            Description: post.Description,
-            Comments:    post.Comments,
-            Likes:       post.Likes,
-            PondName:    post.PondName,
-            Author:      post.Author,
-            CreatedAt:   post.CreatedAt,
-        }
-    }
-
-    // Get user data if logged in
+    // Get user from cookie if logged in
     var user *templates.UserTemplate
     if cookie, err := r.Cookie("user"); err == nil {
         user = templates.GetUserTemplate(cookie.Value)
     }
 
-    data := struct {
-        User          *templates.UserTemplate
-        TrendingPosts []templates.Post
-    }{
+    // Convert database posts to template posts
+    templatePosts := templates.ConvertDatabasePosts(dbPosts)
+
+    // Create page data
+    data := PageData{
         User:          user,
-        TrendingPosts: trendingPosts,
+        TrendingPosts: templatePosts,
     }
 
-    // Create template with functions
+    // Parse and execute template
     tmpl, err := template.New("trending.html").Funcs(template.FuncMap{
         "add": func(a, b int) int {
             return a + b

@@ -42,7 +42,9 @@ body {
     box-shadow: 0 6px 12px rgba(74,102,112,0.12);
 }
 
+/* Standardized Post Card Styling */
 .post-card {
+    position: relative;
     background-color: var(--ribbit-light);
     border-bottom: 2px solid var(--ribbit-accent);
     padding: 1.2rem;
@@ -50,14 +52,103 @@ body {
     margin-bottom: 1rem;
     transition: all 0.3s ease;
     animation: slideIn 0.3s ease-out forwards;
-    border-left: 4px solid transparent;
 }
 
 .post-card:hover {
     background-color: var(--ribbit-hover);
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(127,185,166,0.15);
-    border-left-color: var(--ribbit-accent);
+    border-left: 4px solid var(--ribbit-accent);
+}
+
+.post-card .post-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+}
+
+.post-card .pond-badge {
+    background-color: var(--ribbit-gray);
+    color: var(--ribbit-dark);
+    padding: 0.3rem 0.8rem;
+    border-radius: 15px;
+    font-size: 0.9rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+}
+
+.post-card .post-meta {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    color: var(--ribbit-dark);
+    font-size: 0.9rem;
+}
+
+.post-card .post-title {
+    color: var(--ribbit-dark);
+    font-size: 1.1rem;
+    margin-bottom: 0.8rem;
+    font-weight: 500;
+}
+
+.post-card .post-description {
+    color: #666;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    margin-bottom: 1rem;
+}
+
+.post-card .post-interactions {
+    display: flex;
+    gap: 1.2rem;
+    margin-top: auto;
+}
+
+.post-card .interaction-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--ribbit-dark);
+    transition: all 0.3s ease;
+    cursor: pointer;
+    font-size: 0.9rem;
+}
+
+.post-card .interaction-btn:hover {
+    color: var(--ribbit-accent);
+    transform: translateY(-1px);
+}
+
+.post-card .delete-post-btn {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    z-index: 1;
+    padding: 0.25rem;
+    color: #dc3545;
+    opacity: 0.7;
+}
+
+.post-card .delete-post-btn:hover {
+    opacity: 1;
+}
+
+/* Special styling for trending posts */
+.post-card.trending {
+    padding-left: 3.5rem;
+}
+
+.post-card.trending::before {
+    content: "#" attr(data-rank);
+    position: absolute;
+    left: 1rem;
+    top: 1rem;
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--ribbit-accent);
 }
 
 .section-title {
@@ -155,15 +246,6 @@ body {
 .btn-ribbit:disabled {
     opacity: 0.7;
     cursor: not-allowed;
-}
-
-.post-title {
-    color: var(--ribbit-dark);
-    transition: color 0.3s ease;
-}
-
-.post-title:hover {
-    color: var(--ribbit-accent);
 }
 
 footer {

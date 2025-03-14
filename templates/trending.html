@@ -24,31 +24,33 @@
                         </h2>
                         
                         {{range $index, $post := .TrendingPosts}}
-                        <div class="trending-post-card" style="--animation-order: {{$index}}">
-                            <div class="trending-number">#{{add $index 1}}</div>
-                            <div class="flex-grow-1">
-                                <div class="d-flex justify-content-between align-items-start mb-2">
-                                    <div class="pond-badge">
-                                        <i class="bi bi-water"></i>
-                                        <a href="/pond?name={{.PondName}}" class="text-decoration-none" style="color: inherit;">
-                                            {{.PondName}}
-                                        </a>
-                                    </div>
+                        <div class="post-card trending" data-rank="{{add $index 1}}">
+                            <div class="post-header">
+                                <div class="pond-badge">
+                                    <i class="bi bi-water"></i>
+                                    <a href="/pond?name={{.PondName}}" class="text-decoration-none" style="color: inherit;">
+                                        {{.PondName}}
+                                    </a>
                                 </div>
-                                <h3 class="post-title h5">{{.Title}}</h3>
-                                <p class="post-description mb-2">{{.Description}}</p>
-                                <div class="d-flex justify-content-between align-items-center">
+                                <div class="post-meta">
                                     <small class="text-muted">Posted by {{.Author}}</small>
-                                    <div class="post-interactions">
-                                        <div class="interaction-btn">
-                                            <i class="bi bi-chat-dots"></i>
-                                            <span>{{.Comments}}</span>
-                                        </div>
-                                        <div class="interaction-btn ms-3">
-                                            <i class="bi bi-heart"></i>
-                                            <span>{{.Likes}}</span>
-                                        </div>
-                                    </div>
+                                    <small class="text-muted">{{.TimeAgo}}</small>
+                                </div>
+                            </div>
+                            <h3 class="post-title">{{.Title}}</h3>
+                            <p class="post-description">{{.Description}}</p>
+                            <div class="post-interactions">
+                                <div class="interaction-btn">
+                                    <i class="bi bi-heart"></i>
+                                    <span>{{.Likes}} likes</span>
+                                </div>
+                                <div class="interaction-btn">
+                                    <i class="bi bi-chat-dots"></i>
+                                    <span>{{.Comments}} comments</span>
+                                </div>
+                                <div class="interaction-btn">
+                                    <i class="bi bi-share"></i>
+                                    <span>Share</span>
                                 </div>
                             </div>
                         </div>

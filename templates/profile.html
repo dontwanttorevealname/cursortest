@@ -115,64 +115,78 @@
                 {{range .AllPosts}}
                     {{if eq $userEmail "admin@ribbit.com"}}
                         {{if eq .Author "Ribbit Admin"}}
-                        <div class="post-card" style="position: relative;" data-post-id="{{.ID}}">
-                            <button class="btn btn-link text-danger delete-post-btn" 
-                                    style="position: absolute; top: 10px; right: 10px;"
+                        <div class="post-card" data-post-id="{{.ID}}">
+                            <button class="btn btn-link text-danger delete-post-btn"
                                     data-post-id="{{.ID}}"
                                     data-bs-toggle="modal" 
                                     data-bs-target="#deleteConfirmModal">
                                 <i class="bi bi-trash"></i>
                             </button>
-                            <div class="d-flex justify-content-between align-items-start mb-2">
+                            <div class="post-header">
                                 <div class="pond-badge">
                                     <i class="bi bi-water"></i>
                                     <a href="/pond?name={{.PondName}}" class="text-decoration-none" style="color: inherit;">
                                         {{.PondName}}
                                     </a>
                                 </div>
+                                <div class="post-meta">
+                                    <small class="text-muted">Posted by {{.Author}}</small>
+                                    <small class="text-muted">{{.TimeAgo}}</small>
+                                </div>
                             </div>
-                            <h3 class="post-title h5">{{.Title}}</h3>
+                            <h3 class="post-title">{{.Title}}</h3>
                             <p class="post-description">{{.Description}}</p>
                             <div class="post-interactions">
                                 <div class="interaction-btn">
-                                    <i class="bi bi-chat-dots me-1"></i>
+                                    <i class="bi bi-chat-dots"></i>
                                     <span>{{.Comments}} comments</span>
                                 </div>
-                                <div class="interaction-btn ms-3">
-                                    <i class="bi bi-heart me-1"></i>
+                                <div class="interaction-btn">
+                                    <i class="bi bi-heart"></i>
                                     <span>{{.Likes}} likes</span>
+                                </div>
+                                <div class="interaction-btn">
+                                    <i class="bi bi-share"></i>
+                                    <span>Share</span>
                                 </div>
                             </div>
                         </div>
                         {{end}}
                     {{else}}
                         {{if eq .Author $userEmail}}
-                        <div class="post-card" style="position: relative;" data-post-id="{{.ID}}">
-                            <button class="btn btn-link text-danger delete-post-btn" 
-                                    style="position: absolute; top: 10px; right: 10px;"
+                        <div class="post-card" data-post-id="{{.ID}}">
+                            <button class="btn btn-link text-danger delete-post-btn"
                                     data-post-id="{{.ID}}"
                                     data-bs-toggle="modal" 
                                     data-bs-target="#deleteConfirmModal">
                                 <i class="bi bi-trash"></i>
                             </button>
-                            <div class="d-flex justify-content-between align-items-start mb-2">
+                            <div class="post-header">
                                 <div class="pond-badge">
                                     <i class="bi bi-water"></i>
                                     <a href="/pond?name={{.PondName}}" class="text-decoration-none" style="color: inherit;">
                                         {{.PondName}}
                                     </a>
                                 </div>
+                                <div class="post-meta">
+                                    <small class="text-muted">Posted by {{.Author}}</small>
+                                    <small class="text-muted">{{.TimeAgo}}</small>
+                                </div>
                             </div>
-                            <h3 class="post-title h5">{{.Title}}</h3>
+                            <h3 class="post-title">{{.Title}}</h3>
                             <p class="post-description">{{.Description}}</p>
                             <div class="post-interactions">
                                 <div class="interaction-btn">
-                                    <i class="bi bi-chat-dots me-1"></i>
+                                    <i class="bi bi-chat-dots"></i>
                                     <span>{{.Comments}} comments</span>
                                 </div>
-                                <div class="interaction-btn ms-3">
-                                    <i class="bi bi-heart me-1"></i>
+                                <div class="interaction-btn">
+                                    <i class="bi bi-heart"></i>
                                     <span>{{.Likes}} likes</span>
+                                </div>
+                                <div class="interaction-btn">
+                                    <i class="bi bi-share"></i>
+                                    <span>Share</span>
                                 </div>
                             </div>
                         </div>
