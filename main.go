@@ -308,30 +308,48 @@ func handleSearch(w http.ResponseWriter, r *http.Request) {
         return
     }
 
-    // Search through all posts and ponds
-    var results []templates.Post
-    var pondResults []templates.Pond
-    
+    // Get database connection
     db, err := database.GetDB()
     if err != nil {
-        log.Printf("Error getting database: %v", err)
         http.Error(w, "Database error", http.StatusInternalServerError)
         return
     }
     defer db.Close()
 
-    // Search posts
-    allPosts, err := templates.GetAllPosts()
-    if err != nil {
-        log.Printf("Error getting posts: %v", err)
-        allPosts = []templates.Post{}
-    }
+    // Search for posts
+    var searchResults []templates.Post
+    rows, err := db.Query(`
+        SELECT id, title, content, comment_count, like_count, pond_name, author_username, created_at
+        FROM ripples
+        WHERE LOWER(title) LIKE ? OR LOWER(content) LIKE ?
+        ORDER BY created_at DESC
+    `, "%"+query+"%", "%"+query+"%")
     
-    for _, post := range allPosts {
-        if strings.Contains(strings.ToLower(post.Title), query) ||
-           strings.Contains(strings.ToLower(post.Description), query) {
-            results = append(results, post)
+    if err != nil {
+        http.Error(w, "Search error", http.StatusInternalServerError)
+        return
+    }
+    defer rows.Close()
+
+    for rows.Next() {
+        var dbPost database.Post
+        err := rows.Scan(
+            &dbPost.ID,
+            &dbPost.Title,
+            &dbPost.Description,
+            &dbPost.Comments,
+            &dbPost.Likes,
+            &dbPost.PondName,
+            &dbPost.Author,
+            &dbPost.CreatedAt,
+        )
+        if err != nil {
+            http.Error(w, "Data error", http.StatusInternalServerError)
+            return
         }
+        // Set TimeAgo before converting
+        dbPost.TimeAgo = database.FormatTimeAgo(dbPost.CreatedAt)
+        searchResults = append(searchResults, templates.ConvertDatabasePost(dbPost))
     }
 
     // Search ponds
@@ -341,6 +359,7 @@ func handleSearch(w http.ResponseWriter, r *http.Request) {
         allPonds = []database.Pond{}
     }
 
+    var pondResults []templates.Pond
     for _, pond := range allPonds {
         if strings.Contains(strings.ToLower(pond.Name), query) ||
            strings.Contains(strings.ToLower(pond.Description), query) {
@@ -351,7 +370,7 @@ func handleSearch(w http.ResponseWriter, r *http.Request) {
     // Prepare data for the template
     data := PageData{
         User:          userTemplate,
-        SearchResults: results,
+        SearchResults: searchResults,
         SearchPonds:   pondResults,
         Query:         r.URL.Query().Get("q"),
     }

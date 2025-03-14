@@ -45,7 +45,7 @@ func GetAllPosts(db *sql.DB) ([]Post, error) {
         if err != nil {
             return nil, err
         }
-        post.TimeAgo = formatTimeAgo(post.CreatedAt)
+        post.TimeAgo = FormatTimeAgo(post.CreatedAt)
         posts = append(posts, post)
     }
     return posts, nil
@@ -79,7 +79,7 @@ func GetPostsByPond(db *sql.DB, pondName string) ([]Post, error) {
         if err != nil {
             return nil, err
         }
-        post.TimeAgo = formatTimeAgo(post.CreatedAt)
+        post.TimeAgo = FormatTimeAgo(post.CreatedAt)
         posts = append(posts, post)
     }
     return posts, nil
@@ -113,7 +113,7 @@ func GetPaginatedPosts(db *sql.DB, start, count int) ([]Post, error) {
         if err != nil {
             return nil, err
         }
-        post.TimeAgo = formatTimeAgo(post.CreatedAt)
+        post.TimeAgo = FormatTimeAgo(post.CreatedAt)
         posts = append(posts, post)
     }
     return posts, nil
@@ -149,7 +149,7 @@ func GetOfficialPosts(db *sql.DB, count int) ([]Post, error) {
         if err != nil {
             return nil, err
         }
-        post.TimeAgo = formatTimeAgo(post.CreatedAt)
+        post.TimeAgo = FormatTimeAgo(post.CreatedAt)
         posts = append(posts, post)
     }
     return posts, nil
@@ -192,7 +192,7 @@ func GetUserFeed(db *sql.DB, userID int64, start, count int) ([]Post, error) {
         if err != nil {
             return nil, err
         }
-        post.TimeAgo = formatTimeAgo(post.CreatedAt)
+        post.TimeAgo = FormatTimeAgo(post.CreatedAt)
         posts = append(posts, post)
     }
 
@@ -229,7 +229,7 @@ func GetRandomPostsFromPond(db *sql.DB, pondName string, count int) ([]Post, err
         if err != nil {
             return nil, err
         }
-        post.TimeAgo = formatTimeAgo(post.CreatedAt)
+        post.TimeAgo = FormatTimeAgo(post.CreatedAt)
         posts = append(posts, post)
     }
     return posts, nil
@@ -303,7 +303,7 @@ func GetTrendingPosts(db *sql.DB, limit int) ([]Post, error) {
         if err != nil {
             return nil, err
         }
-        post.TimeAgo = formatTimeAgo(post.CreatedAt)
+        post.TimeAgo = FormatTimeAgo(post.CreatedAt)
         posts = append(posts, post)
     }
 
@@ -346,7 +346,7 @@ func GetPondPosts(db *sql.DB, pondName string) ([]Post, error) {
         if err != nil {
             return nil, err
         }
-        post.TimeAgo = formatTimeAgo(post.CreatedAt)
+        post.TimeAgo = FormatTimeAgo(post.CreatedAt)
         posts = append(posts, post)
     }
 
@@ -357,8 +357,8 @@ func GetPondPosts(db *sql.DB, pondName string) ([]Post, error) {
     return posts, nil
 }
 
-// Add this if it's not already there
-func formatTimeAgo(t time.Time) string {
+// FormatTimeAgo formats a time.Time into a human-readable "time ago" string
+func FormatTimeAgo(t time.Time) string {
     duration := time.Since(t)
     hours := duration.Hours()
 

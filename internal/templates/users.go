@@ -299,6 +299,8 @@ func GetTrendingPosts(db *sql.DB) ([]Post, error) {
         if err != nil {
             return nil, err
         }
+        // Set TimeAgo before converting to template post
+        dbPost.TimeAgo = formatTimeAgo(dbPost.CreatedAt)
         posts = append(posts, ConvertDatabasePost(dbPost))
     }
 
@@ -345,7 +347,7 @@ func formatTimeAgo(t time.Time) string {
     return fmt.Sprintf("%d years ago", years)
 }
 
-// Replace GetAllPosts with a database query
+// GetAllPosts retrieves all posts from the database
 func GetAllPosts() ([]Post, error) {
     db, err := database.GetDB()
     if err != nil {
@@ -353,35 +355,19 @@ func GetAllPosts() ([]Post, error) {
     }
     defer db.Close()
 
-    rows, err := db.Query(`
-        SELECT id, title, content, comment_count, like_count, pond_name, author_username, created_at
-        FROM ripples
-        ORDER BY created_at DESC`)
+    dbPosts, err := database.GetAllPosts(db)
     if err != nil {
         return nil, err
     }
-    defer rows.Close()
 
-    var posts []Post
-    for rows.Next() {
-        var dbPost database.Post
-        err := rows.Scan(
-            &dbPost.ID,
-            &dbPost.Title,
-            &dbPost.Description,
-            &dbPost.Comments,
-            &dbPost.Likes,
-            &dbPost.PondName,
-            &dbPost.Author,
-            &dbPost.CreatedAt,
-        )
-        if err != nil {
-            return nil, err
+    // Make sure TimeAgo is set for each post
+    for i := range dbPosts {
+        if dbPosts[i].TimeAgo == "" {
+            dbPosts[i].TimeAgo = formatTimeAgo(dbPosts[i].CreatedAt)
         }
-        posts = append(posts, ConvertDatabasePost(dbPost))
     }
 
-    return posts, nil
+    return ConvertDatabasePosts(dbPosts), nil
 }
 
 // Update GetPaginatedPosts to use conversions
