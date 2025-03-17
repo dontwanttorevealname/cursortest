@@ -6,6 +6,7 @@ import (
 	"strings"
 	"time"
 	"ribbit/internal/database"
+	"log"
 )
 
 // EngagementMetrics defines the ranges for different engagement levels
@@ -117,7 +118,6 @@ func HandleCreatePost(w http.ResponseWriter, r *http.Request) {
 
 // DeletePost handles the deletion of a post
 func DeletePost(w http.ResponseWriter, r *http.Request) {
-	// Only allow DELETE method
 	if r.Method != http.MethodDelete {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
@@ -162,6 +162,8 @@ func DeletePost(w http.ResponseWriter, r *http.Request) {
 	// Delete the post
 	_, err = db.Exec("DELETE FROM ripples WHERE id = ?", postID)
 	if err != nil {
+		// Add logging to see the specific error
+		log.Printf("Error deleting post %s: %v", postID, err)
 		http.Error(w, "Failed to delete post", http.StatusInternalServerError)
 		return
 	}

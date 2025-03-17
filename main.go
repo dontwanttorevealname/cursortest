@@ -100,6 +100,9 @@ func main() {
         }
     })
 
+    // Add proper route for deleting posts
+    r.Delete("/api/posts/{postID}", handlers.DeletePost)
+
     // Start server
     log.Println("Server starting on :8080")
     if err := http.ListenAndServe(":8080", r); err != nil {
