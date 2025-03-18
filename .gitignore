@@ -2,6 +2,8 @@
 .env
 .env.local
 .env.*.local
+.cursorrules
+.secrets
 
 # Go specific
 *.exe
